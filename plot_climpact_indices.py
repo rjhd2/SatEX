@@ -14,7 +14,7 @@ import numpy.ma as ma
 import sys
 #import requests
 import netCDF4
-
+import iris.plot as iplt
 
 def plot_daily_cycle(data, outpath):
     """"Plot a daily cycle for some specific gridpoint."""
@@ -35,10 +35,10 @@ def plot_map(data, outpath):
     plt.title('CM SAF map of LST of some hour')
     plt.savefig(outpath+'CM_SAF_map_LST'+day_yyyymmdd+'.png')
 
-def plot_years(x,y, indexname):
+def plot_years(y, indexname):
     plt.close()
     fig=plt.figure()
-    plt.plot(x,y)
+    iplt.plot(y)
     plt.grid()
     plt.title('Time series of averaged '+indexname+' values ('+TIMERANGE+')')
     plt.savefig(OUTPATH+indexname+'_'+TIMERANGE+'.png')
@@ -91,14 +91,14 @@ for INAME in (INDICES_NAMES):
         global_mean=data[0].collapsed('latitude', iris.analysis.MEAN)
         global_mean=global_mean.collapsed('longitude', iris.analysis.MEAN)
 
-        if TIMERANGE == 'ANN':
-            plot_years(YEARS, global_mean.data, INAME)
-        else:
-            TIMECOORD = global_mean.coord('time').points
-            plot_years(TIMECOORD, global_mean.data, INAME)
+        try:
 
+            plt.close()
+            plot_years(global_mean, INAME)
+        except:
+            print('doesnt work')
+            print(INAME)
 
-            
 
 
 
