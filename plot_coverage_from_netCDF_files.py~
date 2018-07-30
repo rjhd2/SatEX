@@ -55,7 +55,10 @@ def pcolormesh_map(data, lons, lats, cbar_label, titlestring, filename, outpath)
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     #This takes some time, I think the average gets calculated now
-    lst_map = plt.pcolormesh(lons, lats, data*100./divide_days, transform=ccrs.PlateCarree(), vmin=0, vmax=100)
+    lst_map = plt.pcolormesh(lons, lats, data*100./divide_days, transform=ccrs.PlateCarree(), vmin=0.0001, vmax=100)
+    lst_map.cmap.set_under('white')
+
+
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
     cbar.set_label(cbar_label)
     ax1.coastlines()

@@ -16,6 +16,7 @@ import glob
 import sys
 #import requests
 
+
 def load_min_max_LST(season_filepath):
     lst_warm_max = iris.load(season_filepath, 'Coverage of Maximum Land Surface Temperature in Warm Window (PMW)')
     lst_cold_max = iris.load(season_filepath, 'Coverage of Maximum Land Surface Temperature in Cold Window (PMW)')
