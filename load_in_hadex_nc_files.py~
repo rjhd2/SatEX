@@ -120,7 +120,7 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
 #load in data#
 ##############
 
-indexname='CDD' #Decide which index should be used:
+indexname='TN10p' #Decide which index should be used:
 CHOOSE_YEAR=2007
 filepath='/project/hadobs2/hadex2/dataset/HadEX2_'+indexname+'_1901-2010_h2_mask_m4.nc'
 data=iris.load(filepath)
