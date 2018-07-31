@@ -15,6 +15,7 @@ import sys
 import netCDF4
 import iris.plot as iplt
 #from median_pairwise_slopes import MedianPairwiseSlopes
+import copy
 
 
 def plot_daily_cycle(data, outpath):
@@ -44,6 +45,7 @@ def plot_years(y, indexname):
     plt.title('Time series of averaged '+indexname+' values ('+TIMERANGE+')')
     plt.ylabel(UNITS_DICT[INAME])
     #plt.show()
+    #iplt.plot(trendcube)
     plt.savefig(OUTPATH+indexname+'_'+TIMERANGE+'.png')
 
 
@@ -60,10 +62,13 @@ def plot_figure(data, gridlons, gridlats, title, outname, outpath):
     #plt.savefig(outpath+'CM_SAF_map_LST_'+title[0:3]+'_'+outname+'.png')
     return
 
+def line(x,t,m):
+    return m*x+t
+
 
 
 #***************************************
-def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = True, sort = False):
+def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False):
     '''
     Calculate the median of the pairwise slopes
 
@@ -85,18 +90,21 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = True, sort = False):
         ydata = ydata[sort_order]
 
     slopes=[]
+    y_intercepts = []
     for i in range(len(xdata)):
         for j in range(i+1,len(xdata)):
             if mdi[j] == False and mdi[i] == False: #changed from: if ydata[j]!=mdi and ydata[i]!=mdi:
-                slopes+=[(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
+                slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
+                y_intercepts += [(xdata[j]*ydata[i]-xdata[i]*ydata[j])/(xdata[j]-xdata[i])]
 
 
     mpw=np.median(np.array(slopes))
+    y_intercept_point = np.median(np.array(y_intercepts))
 
     # copied from median_pairwise.pro methodology (Mark McCarthy)
     slopes.sort()
 
-    good_data=np.where(ydata != mdi)[0]
+    good_data=np.where(ydata == False)[0]
 
     n=len(ydata[good_data])
 
@@ -114,9 +122,9 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = True, sort = False):
     lower=slopes[int(rank_lower)]
 
     if mult10:
-        return 10. * mpw, 10. * lower, 10. * upper      # MedianPairwiseSlopes
+        return 10. * mpw, 10. * lower, 10. * upper, y_intercept_point      # MedianPairwiseSlopes
     else:
-        return  mpw, lower, upper      # MedianPairwiseSlopes
+        return  mpw, lower, upper, y_intercept_point      # MedianPairwiseSlopes
 
 
 
@@ -150,6 +158,8 @@ SLOPES = {}
 
 slopes = []
 
+#INDICES_NAMES = ['tn10p']
+
 for INAME in (INDICES_NAMES):
     print(INAME)
     if INAME == 'wsdi' or INAME == 'csdi' or INAME == 'hw': #those are annual indices.
@@ -171,22 +181,65 @@ for INAME in (INDICES_NAMES):
         global_mean=data[0].collapsed(['latitude', 'longitude'], iris.analysis.MEAN, weights=global_mean_areas)
         #global_mean=global_mean.collapsed('longitude', iris.analysis.MEAN)
 
-        try:
+        if INAME in ['hw', 'tnx', 'txx', 'tx95t', 'tnm', 'tmm']:
+
+            try:
+                plot_years(global_mean, INAME)
+            except:
+                d = 0
+
+        if INAME not in ['hw', 'tnx', 'txx', 'tx95t', 'tnm', 'tmm']:
+
+            #try:
 
             plt.close()
-            plot_years(global_mean, INAME)
-
+            #plot_years(global_mean, INAME)
+            
             YDATA = global_mean.data
             XDATA = global_mean.coord('time').points
             MDI  = YDATA.mask
 
-            slopes.append(MedianPairwiseSlopes(XDATA,YDATA,MDI,mult10 = True, sort = False))
+            trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,MDI,mult10 = False, sort = False)
 
+            slope = trendanalysis[0]
+            slope_lower_uncrty = trendanalysis[1]
+            slope_upper_uncrty = trendanalysis[2]
+            #Y_INTERCEPTION = np.median(YDATA)-slope*np.median(XDATA)
+            Y_INTERCEPTION = trendanalysis[3]
+            slopes.append(slope)
 
+            trendcube = copy.deepcopy(global_mean)
+            trendcube.rename('Trend')
+            trendcube.data=line(XDATA, Y_INTERCEPTION, slope)
+            '''
+            trendcube_upper = copy.deepcopy(global_mean)
+            trendcube_upper.rename('Upper Trend')
+            trendcube_upper.data=line(XDATA, Y_INTERCEPTION, slope_upper_uncrty)
 
-        except:
-            not_working.append(INAME)
+            trendcube_lower = copy.deepcopy(global_mean)
+            trendcube_lower.rename('Upper Trend')
+            trendcube_lower.data=line(XDATA, Y_INTERCEPTION, slope_lower_uncrty)       
+            '''
+
+            plt.close()
+            fig=plt.figure()
+            iplt.plot(global_mean)
+            plt.grid()
+            plt.title('Time series of averaged '+INAME+' values ('+TIMERANGE+')')
+            plt.ylabel(UNITS_DICT[INAME])
+            #plt.show()
+
+            iplt.plot(trendcube, label='trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
+            #iplt.plot(trendcube_lower, label='lower trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
+            #iplt.plot(trendcube_upper, label='upper trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
+
+            plt.legend()
+            plt.savefig(OUTPATH+INAME+'_with_trend_'+TIMERANGE+'.png')
+            #except:
+                #not_working.append(INAME)
 print(not_working)
+
+
 
 
 
