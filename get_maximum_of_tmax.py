@@ -33,23 +33,33 @@ MONTHLY_AVERAGE = iris.cube.CubeList()
 ANNUAL_AVERAGE = iris.cube.CubeList()
 for i in range(len(YEARS)):
     #MONTHLY_MAX = np.ma.zeros((12, 856, 2171), fill_value = 1e+20) #25 years, 856 latitude, 2171 longitude
-    FINAL_MONTHS = iris.cube.CubeList()
+    TXx_MONTHS = iris.cube.CubeList()
 
     print(YEARS[i])
 
     for MONTH in MONTHS:
         print(MONTH)
         FPATH = glob.glob(INDIR+str(YEARS[i])+'/'+str(MONTH)+'/*.nc')
-        tmax = iris.load(FPATH, 'Maximum Land Surface Temperature in Warm Window (PMW)')
-        tmax = tmax.concatenate_cube()
 
-        FINAL_MONTHS.append(tmax.collapsed('time', iris.analysis.MAX))
+        #load in TX (maximum LST) and TN (minimum LST)
+        TX = iris.load(FPATH, 'Maximum Land Surface Temperature in Warm Window (PMW)')
+        TX = TX.concatenate_cube()
 
-        #tmax_data = tmax.data
-        #MONTHLY_MAX[int(MONTH)-1,:,:] = ma.max(tmax_data, axis = 0)
+        TN = iris.load(FPATH, 'Minimum Land Surface Temperature in Cold Window (PMW)')
+        TN = TN.concatenate_cube()
 
-    FINAL_MONTHS = FINAL_MONTHS.merge_cube()
-    MEAN_MONTHLY_MAX = FINAL_MONTHS.collapsed(('longitude', 'latitude'), iris.analysis.MEAN)
+
+        TXx_MONTHS.append(TX.collapsed('time', iris.analysis.MAX))
+
+        #TX_data = TX.data
+        #MONTHLY_MAX[int(MONTH)-1,:,:] = ma.max(TX_data, axis = 0)
+
+    TXx_MONTHS = TXx_MONTHS.merge_cube()
+
+
+    #Compute the averaged TXx over the whole region
+    MEAN_MONTHLY_MAX = TXx_MONTHS.collapsed(('longitude', 'latitude'), iris.analysis.MEAN)
+    #Average the monthly TXx (averaged over whole region) over the time to get an estimate of the Mean
     MEAN_ANNUALLY_MAX = MEAN_MONTHLY_MAX.collapsed('time', iris.analysis.MEAN)
 
     MONTHLY_AVERAGE.append(MEAN_MONTHLY_MAX)
