@@ -203,28 +203,20 @@ values_spat_avg = [item for sublist in values_spat_avg for item in sublist]
 #sort list by time coordinate
 times_spat_avg, values_spat_avg = (list(t) for t in zip(*sorted(zip(times_spat_avg, values_spat_avg))))
 
-##########################################
-#compute the global average for some year#
-##########################################
-global_mean=data[0].collapsed('latitude', iris.analysis.MEAN)
-global_mean=global_mean.collapsed('longitude', iris.analysis.MEAN)
 
-#####################################################
-#Plot map of averaged values over whole time period #
-#####################################################
-
-data_values = np.ma.zeros((12,15,32), fill_value = -99.9)
-
-for i in range(12):
-    data_values[i,:,:] = data[i,:,:]
-
-
-data_values=data[0].data
-LONS = data[0].coord('longitude').points
-LATS = data[0].coord('latitude').points
-#plot_map(data_values[CHOOSE_YEAR-1991, :, :], LONS, LATS)
-
-
+##############################################################
+#Plot map of averaged values over whole time period: ANN_data#
+##############################################################
+plt.close()
+fig = plt.figure(figsize=(10, 5))
+ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+#ax.set_extent([ -30., 65., 30, 65. ], crs=ccrs.PlateCarree())
+cont = iplt.contourf(ANN_data.collapsed('time', iris.analysis.MEAN))
+ax.coastlines()
+cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
+cb.set_label(indexname+' Index Value')
+plt.title('Map of averaged '+indexname+' values (GHCNDEX) ')
+plt.savefig(OUTPATH+indexname+'_GHCNDEX_map_averaged.png')
 
 #########################################
 #Plot years 1991 - 2015 with trend line #
