@@ -87,9 +87,12 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
     # copied from median_pairwise.pro methodology (Mark McCarthy)
     slopes.sort()
 
-    good_data=np.where(ydata == False)[0]
+    if calc_with_mdi == True:
+        good_data=np.where(ydata == False)[0]
+        n=len(ydata[good_data])
 
-    n=len(ydata[good_data])
+    elif calc_with_mdi == False:
+        n=len(ydata)
 
     dof=n*(n-1)/2
     w=np.sqrt(n*(n-1)*((2.*n)+5.)/18.)
@@ -114,12 +117,9 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
 OUTPATH = '/scratch/vportge/plots/GHCNDEX/'
 
 
-
-
-
-##############
-#load in data#
-##############
+######################################################################################
+#load in data with constraints to correct region defined by longitudes and latitudes #
+######################################################################################
 
 indexname='TXx' #Decide which index should be used:
 CHOOSE_YEAR=2015
@@ -133,13 +133,75 @@ data = data.extract(longitude_constraint)
 data = data.extract(latitude_constraint)
 
 
+######################################################################################
+#Change time coordinate of data as it only contains the month via .name() of the cube#
+######################################################################################
 
-data_values=data[0].data
-LONS = data[0].coord('longitude').points
-LATS = data[0].coord('latitude').points
+spat_avg_month = iris.cube.CubeList()
 
-years=np.arange(1991,2016)    
-year=data[0].data[0,:,:]
+for i in range(len(data)):
+    month_data = data[i]
+    month_time = month_data.coord('time')
+    month_datetime = []
+
+    if month_data.name() == 'Ann':
+        ANN_data = copy.deepcopy(month_data)
+        #calculate spatial average#
+        ANN_data_avg=ANN_data.collapsed('latitude', iris.analysis.MEAN)
+        ANN_data_avg=ANN_data_avg.collapsed('longitude', iris.analysis.MEAN)
+        ANN_index = i*1.
+    else:
+        for j in range(len(month_time.points)):
+            yyyy = datetime.datetime.strptime(str(int(month_time.points[j])), '%Y%m%d').year
+            if month_data.name() == 'Jan':
+                mm = '01'
+            elif month_data.name() == 'Feb':
+                mm = '02'
+            elif month_data.name() == 'Mar':
+                mm = '03'
+            elif month_data.name() == 'Apr':
+                mm = '04'
+            elif month_data.name() == 'May':
+                mm = '05'
+            elif month_data.name() == 'Jun':
+                mm = '06'
+            elif month_data.name() == 'Jul':
+                mm = '07'
+            elif month_data.name() == 'Aug':
+                mm = '08'
+            elif month_data.name() == 'Sep':
+                mm = '09'
+            elif month_data.name() == 'Oct':
+                mm = '10'
+            elif month_data.name() == 'Nov':
+                mm = '11'
+            elif month_data.name() == 'Dec':
+                mm = '12'
+            month_datetime.append(datetime.datetime.strptime(str(yyyy)+str(mm)+'01', '%Y%m%d'))
+        times_nums_units = netCDF4.date2num(month_datetime, units = 'days since 1970-01-01 00:00', calendar = 'standard')
+        time_unit = cf_units.Unit( 'days since 1970-01-01 00:00', calendar='standard')
+        new_timecoord = iris.coords.DimCoord(times_nums_units, standard_name = 'time', units = time_unit, var_name = "time") 
+        month_data.remove_coord('time')
+        month_data.add_dim_coord(new_timecoord,0)
+        #calculate spatial average#
+        month_avg=month_data.collapsed('latitude', iris.analysis.MEAN)
+        month_avg=month_avg.collapsed('longitude', iris.analysis.MEAN)
+        spat_avg_month.append(month_avg)
+del(data[int(ANN_index)])
+
+
+times_spat_avg = []
+values_spat_avg = []
+
+for i in spat_avg_month:
+    time_month = i.coord('time')
+    times_spat_avg.append(time_month.points)
+    values_spat_avg.append(i.data)
+#flatten the lists
+times_spat_avg = [item for sublist in times_spat_avg for item in sublist]
+values_spat_avg = [item for sublist in values_spat_avg for item in sublist]
+#sort list by time coordinate
+times_spat_avg, values_spat_avg = (list(t) for t in zip(*sorted(zip(times_spat_avg, values_spat_avg))))
 
 ##########################################
 #compute the global average for some year#
@@ -147,78 +209,47 @@ year=data[0].data[0,:,:]
 global_mean=data[0].collapsed('latitude', iris.analysis.MEAN)
 global_mean=global_mean.collapsed('longitude', iris.analysis.MEAN)
 
-######################################################
-#Plot the data: Time Series and map of global average#
-######################################################
-plot_years(years, global_mean.data)
-plot_map(data_values[CHOOSE_YEAR-1991, :, :], LONS, LATS)
+#####################################################
+#Plot map of averaged values over whole time period #
+#####################################################
+
+data_values = np.ma.zeros((12,15,32), fill_value = -99.9)
+
+for i in range(12):
+    data_values[i,:,:] = data[i,:,:]
+
+
+data_values=data[0].data
+LONS = data[0].coord('longitude').points
+LATS = data[0].coord('latitude').points
+#plot_map(data_values[CHOOSE_YEAR-1991, :, :], LONS, LATS)
 
 
 
 #########################################
-#Plot years 1991 - 2010 with trend line #
+#Plot years 1991 - 2015 with trend line #
 #########################################
-
-time_coord = global_mean.coord('time')
-times_datetime = []
-
-for i in range(len(time_coord.points)):
-    yyyy = datetime.datetime.strptime(str(int(time_coord.points[i]))[0]
-    if global_mean.name() == 'NOV':
-        mm == '11'
-    times_datetime.append(datetime.datetime.strptime(str(int(time_coord.points[i])), '%Y%m%d'))
-
-times_nums_units = netCDF4.date2num(times_datetime, units = 'days since 1970-01-01 00:00', calendar = 'standard')
-time_unit = cf_units.Unit( 'days since 1970-01-01 00:00', calendar='standard')
-new_timecoord = iris.coords.DimCoord(times_nums_units, standard_name = 'time', units = time_unit, var_name = "time") 
-global_mean.remove_coord('time')
-global_mean.add_dim_coord(new_timecoord,0)
-
-
 plt.close()
-YDATA = global_mean.data
-XDATA = new_timecoord.points
-MDI  = YDATA.mask
+YDATA = values_spat_avg
+XDATA = times_spat_avg
+times_datetime = [netCDF4.num2date(i, units = 'days since 1970-01-01 00:00', calendar = 'standard') for i in times_spat_avg]
 
-trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,MDI,mult10 = False, sort = False, calc_with_mdi=True)
-
+trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,10,mult10 = False, sort = False, calc_with_mdi=False)
 slope = trendanalysis[0]
 slope_lower_uncrty = trendanalysis[1]
 slope_upper_uncrty = trendanalysis[2]
-#Y_INTERCEPTION = np.median(YDATA)-slope*np.median(XDATA)
 Y_INTERCEPTION = trendanalysis[3]
 
-trendcube = copy.deepcopy(global_mean)
-trendcube.rename('Trend')
-trendcube.data=line(XDATA, Y_INTERCEPTION, slope)
-'''
-trendcube_upper = copy.deepcopy(data_time_period)
-trendcube_upper.rename('Upper Trend')
-trendcube_upper.data=line(XDATA, Y_INTERCEPTION, slope_upper_uncrty)
 
-trendcube_lower = copy.deepcopy(data_time_period)
-trendcube_lower.rename('Upper Trend')
-trendcube_lower.data=line(XDATA, Y_INTERCEPTION, slope_lower_uncrty)       
-'''
-
-plt.close()
-fig=plt.figure(figsize = (10, 8))
-iplt.plot(global_mean)
+trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
+plt.plot(times_datetime, YDATA)
+plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+' per decade')
 plt.grid()
 plt.title(indexname + ' GHCNDEX', size=22)
-#plt.ylabel(UNITS_DICT[INAME], size=20)
 plt.xlabel('years', size=20)
-
-iplt.plot(trendcube, label='trend: '+str(round(slope*365*10.,2))+' per decade')
-#iplt.plot(trendcube_lower, label='lower trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
-#iplt.plot(trendcube_upper, label='upper trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
-
 plt.legend(fontsize = 16)
 plt.tight_layout()
 plt.tick_params(axis='both', which='major', labelsize=16)
-
-#plt.xlim( 728294. - 5*365, 735599.)
-
 plt.savefig(OUTPATH+indexname+'_GHCNDEX_with_trend.png')
 
 
