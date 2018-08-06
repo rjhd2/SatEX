@@ -1,12 +1,15 @@
 # -*- coding: iso-8859-1 -*-
 import numpy as np
 import iris
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
 import matplotlib.cm as mpl_cm
 import iris.plot as iplt
 import cartopy.crs as ccrs
-import cartopy.feature as cfeature
+import cartopy.feature as cfeat
 import glob
 import iris
 from iris.util import unify_time_units
@@ -21,6 +24,27 @@ import datetime
 import netCDF4
 import cf_units
 
+
+# set the colormap and centre the colorbar
+class MidpointNormalize(colors.Normalize):
+        """
+        Normalise the colorbar so that diverging bars work there way either side from a prescribed midpoint value)
+
+        e.g. im=ax1.imshow(array, norm=MidpointNormalize(midpoint=0.,vmin=-100, vmax=100))
+        """
+        def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+                self.midpoint = midpoint
+                colors.Normalize.__init__(self, vmin, vmax, clip)
+
+        def __call__(self, value, clip=None):
+                # I'm ignoring masked values and all kinds of edge cases to make a
+                # simple example...
+                x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+                return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
+
+
+
+
 def line(x,t,m):
     '''Plot a line. '''
     return m*x+t
@@ -33,12 +57,16 @@ def plot_figure(data, gridlons, gridlats, title):
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r')
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
-    ax.coastlines()
+    ax.set_extent((np.amin(gridlons)-2, np.amax(gridlons)+2, np.amin(gridlats)-2, np.amax(gridlats)+2), crs = ccrs.PlateCarree())
+
+    political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
+                                                name='admin_0_countries',
+                                                scale='50m')
+    ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
     gl = ax.gridlines(draw_labels=True)
     plt.title(title, y=1.08, size=22)
     cbar.set_label(UNITS_DICT[indexname]+' per decade', size=20)
-    plt.tight_layout()
-    plt.savefig(OUTPATH+indexname+'_map_of_trend_'+REGION+'png')
+    plt.savefig(OUTPATH+indexname+'_map_of_trend_'+REGION+'.png')
     return
 
 #***************************************
@@ -113,10 +141,8 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
             return  mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
 
 
-OUTPATH = '/scratch/vportge/plots/GHCNDEX/'
 
-UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU': 'days', 'TN10p': '%', 'TN90p': '%',
-              'TNm': u'\u00B0C', 'TNn': u'\u00B0C', 'TNx': u'\u00B0C', 
+UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU': 'days', 'TN10p': '%', 'TN90p': '%', 'TNn': u'\u00B0C', 'TNx': u'\u00B0C', 
               'TR': 'days', 'TX10p': '%', 'TX90p': '%', 'TXn': u'\u00B0C', 'TXx': u'\u00B0C', 'WSDI': 'days' }
 #'HW': 'days', 'TMGE10': 'days', 'TMGE5': 'days', 'TMLT10': 'days', 'TMLT10': 'days', 'TMm': u'\u00B0C','TMLT5': 'days', 'TX95T': u'\u00B0C', 'TXGE30': 'days', 'TXGE35': 'days', 'TXGT50P': '%',
 #'TNLT2': 'days', 'TNLTM2': 'days', 'TNLTM20': 'days',
@@ -150,6 +176,8 @@ for indexname in UNITS_DICT.keys():
 
     for REGION in REGIONS:
         print(REGION)
+        OUTPATH = '/scratch/vportge/plots/GHCNDEX/'+REGION+'/'
+
         original_data=iris.load(filepath, time_constraint) #Data has name of the months. 
         if len(original_data) == 0:
             print(indexname)
@@ -271,16 +299,27 @@ for indexname in UNITS_DICT.keys():
         fig = plt.figure(figsize=(10, 5))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
         #ax.set_extent([ -30., 65., 30, 65. ], crs=ccrs.PlateCarree())
-        cont = iplt.pcolormesh(ANN_data.collapsed('time', iris.analysis.MEAN), cmap = 'CMRmap')
-        ax.coastlines()
+        ANN_data_time_avg = ANN_data.collapsed('time', iris.analysis.MEAN)
+        ANN_data_lon = ANN_data_time_avg.coord('longitude').points
+        ANN_data_lat = ANN_data_time_avg.coord('latitude').points
+
+        cont = iplt.pcolormesh(ANN_data_time_avg, cmap = 'CMRmap')
+
+
+        ax.set_extent((np.amin(ANN_data_lon)-2, np.amax(ANN_data_lon)+2, np.amin(ANN_data_lat)-2, np.amax(ANN_data_lat)+2), crs = ccrs.PlateCarree())
+
+        political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
+                                                    name='admin_0_countries',
+                                                    scale='50m')
+        ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
         cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
         cb.set_label(indexname+' Index Value')
         plt.title('Map of averaged '+indexname+' values (GHCNDEX) '+REGION)
         plt.savefig(OUTPATH+indexname+'_GHCNDEX_map_averaged_'+REGION+'.png')
 
-        #########################################
-        #Plot years 1991 - 2015 with trend line #
-        #########################################
+        ########################################################
+        #Plot time series of years 1991 - 2015 with trend line #
+        ########################################################
         if len(original_data)>1:
             plt.close()
             YDATA = values_spat_avg
@@ -294,19 +333,45 @@ for indexname in UNITS_DICT.keys():
             slope_upper_uncrty = trendanalysis[2]
             Y_INTERCEPTION = trendanalysis[3]
 
-
             trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
             plt.plot(times_datetime, YDATA)
             plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
             plt.grid()
-            plt.title(indexname + ' GHCNDEX '+REGION, size=22)
+            plt.title(indexname + ' GHCNDEX monthly '+REGION, size=22)
             plt.xlabel('years', size=20)
             plt.ylabel(UNITS_DICT[indexname], size=20)
 
             plt.legend(fontsize = 16)
             plt.tight_layout()
             plt.tick_params(axis='both', which='major', labelsize=16)
-            plt.savefig(OUTPATH+indexname+'_GHCNDEX_with_trend_'+REGION+'png')
+            plt.savefig(OUTPATH+indexname+'_time_series_GHCNDEX_with_trend_monthly_'+REGION+'.png')
+
+        elif len(original_data) == 1:
+            plt.close()
+            YDATA = ANN_data_avg.data
+            XDATA = ANN_data_avg.coord('time').points
+            #convert to datetime object so that it can be plotted easily.
+            times_datetime = [netCDF4.num2date(i, units = 'days since 1970-01-01 00:00', calendar = 'standard') for i in ANN_data_avg.coord('time').points]
+
+            trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,10,mult10 = False, sort = False, calc_with_mdi=False)
+            slope = trendanalysis[0]
+            slope_lower_uncrty = trendanalysis[1]
+            slope_upper_uncrty = trendanalysis[2]
+            Y_INTERCEPTION = trendanalysis[3]
+
+
+            trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
+            plt.plot(times_datetime, YDATA)
+            plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
+            plt.grid()
+            plt.title(indexname + ' GHCNDEX annually '+REGION, size=22)
+            plt.xlabel('years', size=20)
+            plt.ylabel(UNITS_DICT[indexname], size=20)
+
+            plt.legend(fontsize = 16)
+            plt.tight_layout()
+            plt.tick_params(axis='both', which='major', labelsize=16)
+            plt.savefig(OUTPATH+indexname+'_time_series_GHCNDEX_with_trend_annually_'+REGION+'.png')
 
 
 

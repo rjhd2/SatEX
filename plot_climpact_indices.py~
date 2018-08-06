@@ -7,7 +7,8 @@ import iris.quickplot as qplt
 #import matplotlib.cm as mpl_cm
 #import iris.plot as iplt
 import cartopy.crs as ccrs
-import cartopy.feature as cfeatimport glob
+import cartopy.feature as cfeat
+import glob
 #from iris.util import unify_time_units
 import datetime
 import numpy.ma as ma
@@ -48,22 +49,21 @@ def plot_figure(data, gridlons, gridlats, title):
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r')
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
-    ax.coastlines()
+    #ax.coastlines()
     ax.set_extent((np.amin(gridlons)-2, np.amax(gridlons)+2, np.amin(gridlats)-2, np.amax(gridlats)+2), crs = ccrs.PlateCarree())
 
     political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
                                                 name='admin_0_countries',
                                                 scale='50m')
     ax.add_feature(political_bdrys,
-                edgecolor='b', facecolor='none',
-                linestyle='--', zorder=-1)
+                edgecolor='b', facecolor='none', zorder=2)
 
     gl = ax.gridlines(draw_labels=True)
     plt.title(title, y=1.08, size=22)
     cbar.set_label(UNITS_DICT[INAME]+' per decade', size=20)
     #plt.tight_layout()
-    plt.show()
-    #plt.savefig(OUTPATH+INAME+'_map_of_trend_'+TIMERANGE+'.png')
+    #plt.show()
+    plt.savefig(OUTPATH+INAME+'_map_of_trend_'+TIMERANGE+'.png')
     return
 
 def line(x,t,m):
@@ -154,7 +154,7 @@ not_working = []
 slopes = []
 REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 47.5, 15.0, 52.5], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
-#UNITS_DICT = {'hw': 'days'}
+UNITS_DICT = { 'su': 'days',}
 
 for INAME in UNITS_DICT:
     print(INAME)

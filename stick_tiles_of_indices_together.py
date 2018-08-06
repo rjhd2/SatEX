@@ -7,7 +7,7 @@ import iris.quickplot as qplt
 #import matplotlib.cm as mpl_cm
 #import iris.plot as iplt
 import cartopy.crs as ccrs
-#import cartopy.feature as cfeature
+import cartopy.feature as cfeat
 import glob
 #from iris.util import unify_time_units
 import datetime
@@ -51,11 +51,19 @@ def plot_figure(data, gridlons, gridlats, title):
 
     lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r')
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
-    ax.coastlines()
+    ax.set_extent((np.amin(gridlons)-2, np.amax(gridlons)+2, np.amin(gridlats)-2, np.amax(gridlats)+2), crs = ccrs.PlateCarree())
+
+    political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
+                                                name='admin_0_countries',
+                                                scale='50m')
+    ax.add_feature(political_bdrys,
+                edgecolor='b', facecolor='none', zorder=2)
     gl = ax.gridlines(draw_labels=True)
     plt.title(title, y=1.08, size=22)
     cbar.set_label(UNITS_DICT[INAME]+' per decade', size=20)
     #plt.tight_layout()
+    #plt.show()
+
     plt.savefig(OUTPATH+INAME+'_map_of_trend_'+TIMERANGE+'_'+REGION+'.png')
     return
 
@@ -63,8 +71,6 @@ def line(x,t,m):
     return m*x+t
 
 
-
-#***************************************
 def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with_mdi = False):
     '''
     Calculate the median of the pairwise slopes
@@ -76,9 +82,7 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
     :param bool sort: sort the Xdata first
     :returns: float of slope
     '''
-    
     import numpy as np
-    
     # sort xdata
     if sort:
         sort_order = np.argsort(xdata)
@@ -98,34 +102,44 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
                 slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
                 y_intercepts += [(xdata[j]*ydata[i]-xdata[i]*ydata[j])/(xdata[j]-xdata[i])]
 
-    mpw=np.median(np.array(slopes))
-    y_intercept_point = np.median(np.array(y_intercepts))
+    mpw=np.ma.median(np.ma.array(slopes))
+    y_intercept_point = np.ma.median(np.array(y_intercepts))
 
     # copied from median_pairwise.pro methodology (Mark McCarthy)
     slopes.sort()
 
-    good_data=np.where(ydata == False)[0]
+    if calc_with_mdi == True:
+        good_data = np.where(mdi == False)#good_data=np.where(ydata == False)[0]
+        n=len(ydata[good_data])
 
-    n=len(ydata[good_data])
+    elif calc_with_mdi == False:
+        n=len(ydata)
 
-    dof=n*(n-1)/2
-    w=np.sqrt(n*(n-1)*((2.*n)+5.)/18.)
+    try:
 
-    rank_upper=((dof+1.96*w)/2.)+1
-    rank_lower=((dof-1.96*w)/2.)+1
+        dof=n*(n-1)/2
+        w=np.sqrt(n*(n-1)*((2.*n)+5.)/18.)
 
-    if rank_upper >= len(slopes): rank_upper=len(slopes)-1
-    if rank_upper < 0: rank_upper=0
-    if rank_lower < 0: rank_lower=0
+        rank_upper=((dof+1.96*w)/2.)+1
+        rank_lower=((dof-1.96*w)/2.)+1
 
-    upper=slopes[int(rank_upper)]
-    lower=slopes[int(rank_lower)]
+        if rank_upper >= len(slopes): rank_upper=len(slopes)-1
+        if rank_upper < 0: rank_upper=0
+        if rank_lower < 0: rank_lower=0
 
-    if mult10:
-        return 10. * mpw, 10. * lower, 10. * upper, y_intercept_point      # MedianPairwiseSlopes
-    else:
-        return  mpw, lower, upper, y_intercept_point      # MedianPairwiseSlopes
+        upper=slopes[int(rank_upper)]
+        lower=slopes[int(rank_lower)]
 
+        if mult10:
+            return 10. * mpw, 10. * lower, 10. * upper, y_intercept_point      # MedianPairwiseSlopes
+        else:
+            return  mpw, lower, upper, y_intercept_point      # MedianPairwiseSlopes
+
+    except:
+        if mult10:
+            return 10. * mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
+        else:
+            return  mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
 
 
 
@@ -198,7 +212,7 @@ for INAME in python_indices:
         data.coord('longitude').guess_bounds()
 
         cube_name = data.name()
-        if UNITS_DICT[INAME] != '%' or UNITS_DICT[INAME] != 'days':
+        if UNITS_DICT[INAME] != '%' and UNITS_DICT[INAME] != 'days':
             if INAME != 'DTR':
                 data = data - 273.15
                 data.rename(cube_name)
@@ -286,20 +300,19 @@ for INAME in python_indices:
             #Plot map of calculated trends for every gridpoint #
             ####################################################
             if TIMERANGE == 'ANN':
-                try:
-                    index_values = ann_data.data
-                    trends = np.zeros(index_values.shape[1:3]) # lat, lon
-                    XDATA_ANN = ann_data.coord('time').points #in hours!
-                    for lat in range(trends.shape[0]):
-                        for lon in range(trends.shape[1]):
-                            YDATA_GRIDPOINT = index_values[:, lat, lon]
-                            trends[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,mdi=False,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+                index_values = ann_data.data
+                trends = np.zeros(index_values.shape[1:3]) # lat, lon
+                XDATA_ANN = ann_data.coord('time').points #in hours!
+                for lat in range(trends.shape[0]):
+                    for lon in range(trends.shape[1]):
+                        YDATA_GRIDPOINT = index_values[:, lat, lon]
+                        trends[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
 
-                    GRIDLONS = ann_data.coord('longitude').points
-                    GRIDLATS = ann_data.coord('latitude').points
-                    plot_figure(trends, GRIDLONS, GRIDLATS, 'Trend of '+ INAME+' CM SAF '+' ('+TITLE_TIME+')')
-                except:
-                    d=0.
+                GRIDLONS = ann_data.coord('longitude').points
+                GRIDLATS = ann_data.coord('latitude').points
+
+                trends = np.ma.masked_where(np.isnan(trends), trends)
+                plot_figure(trends, GRIDLONS, GRIDLATS, 'Trend of '+ INAME+' CM SAF '+' ('+TITLE_TIME+')')
 
                     #except:
                         #not_working.append(INAME)
