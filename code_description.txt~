@@ -30,7 +30,6 @@ both in scratch
 merge_files_from_different_years.py:
 This takes the yearly files and merges them all together to one big file for the whole 25 year period. Saves to compressed netCDF files. 
 Saves to different tiles to split up the whole region.
-
 SPICE:
 spice_for_different_years.bash
 

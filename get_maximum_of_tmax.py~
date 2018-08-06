@@ -17,8 +17,8 @@ import iris.plot as iplt
 #from median_pairwise_slopes import MedianPairwiseSlopes
 import copy
 
-MIN_OR_MAX = 'max'
-YEARS = np.arange(1991, 1993)
+MIN_OR_MAX = 'min'
+YEARS = np.arange(1991, 2016)
 MONTHS = ["%.2d" % i for i in range(1,13)]
 try:
     TILENUM = int(sys.argv[1]) #has format: '1'

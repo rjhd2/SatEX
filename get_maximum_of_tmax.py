@@ -17,7 +17,7 @@ import iris.plot as iplt
 #from median_pairwise_slopes import MedianPairwiseSlopes
 import copy
 
-MIN_OR_MAX = 'max'
+MIN_OR_MAX = 'min'
 YEARS = np.arange(1991, 2016)
 MONTHS = ["%.2d" % i for i in range(1,13)]
 try:
@@ -26,8 +26,8 @@ except:
     TILENUM = 7
 
 INDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/'
-tmax = glob.glob(INDIR+'CORRECT_TILES/'+str(TILENUM)+'/*_tmax*.nc')
-tmin = glob.glob(INDIR+'CORRECT_TILES/'+str(TILENUM)+'/*_tmin*.nc')
+tmax = glob.glob(INDIR+'TILES/'+str(TILENUM)+'/*_tmax*.nc')
+tmin = glob.glob(INDIR+'TILES/'+str(TILENUM)+'/*_tmin*.nc')
 OUTDIR = '/scratch/vportge/indices/python_created_indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+str(TILENUM)+'/'
 
 #load in TX (maximum LST) and TN (minimum LST) and concatenate 

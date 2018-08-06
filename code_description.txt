@@ -47,3 +47,6 @@ For analysing HadEX files and plotting maps of their data or time series.
 
 load_in_ecad_data.py:
 For analysing ECA&D data and plotting maps or time series. 
+
+load_in_ghcndex.py:
+Loads GHCNDEX index values and plots time series with trend and maps of averaged values and maps of trends.

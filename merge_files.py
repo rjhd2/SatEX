@@ -5,18 +5,26 @@ import iris
 import os
 import copy
 import cf_units
+import sys
 
 # data location
 DATALOC = "/scratch/vportge/CM_SAF_LST_MIN_MAX/"
 
-OUTDIR = '/scratch/vportge/concatenated_yearly_files/'
+OUTDIR = '/scratch/vportge/concatenated_yearly_files/min_LST_in_cold_window/'
 
 # conversion between Climpact and SEVERI names
-IN_VARIABLE_NAMES = {"tmax" : "Maximum Land Surface Temperature in Warm Window (PMW)", "tmin" : "Maximum Land Surface Temperature in Cold Window (PMW)", "precip" : ""}
+IN_VARIABLE_NAMES = {"tmax" : "Maximum Land Surface Temperature in Warm Window (PMW)", "tmin" : "Minimum Land Surface Temperature in Cold Window (PMW)", "precip" : ""}
 
 final_cubes = iris.cube.CubeList()
 
-YEARS = np.arange(2014,2016)
+
+try:
+    YEARS = np.arange(int(sys.argv[1]), int(sys.argv[1])+1) #has format: 1991/01/
+except:
+    YEARS = np.arange(2014,2016)
+
+
+print(YEARS)
 
 for climpact_var in ["tmax", "tmin", "precip"]:
     severi_var = IN_VARIABLE_NAMES[climpact_var]
@@ -104,6 +112,6 @@ for climpact_var in ["tmax", "tmin", "precip"]:
         final_cubes.append(merged)
 
 print("saving")
-iris.save(final_cubes, OUTDIR+str(YEARS[0])+'_'+str(YEARS[-1])+"_missing_value_1e20_time_in_hours.nc", zlib = True)
+iris.save(final_cubes, OUTDIR+str(YEARS[0])+'_'+str(YEARS[-1])+"_min_lst_cold_win.nc", zlib = True)
 
 print("done")
