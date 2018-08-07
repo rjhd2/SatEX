@@ -1,7 +1,7 @@
 import numpy as np
 import iris
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
 import cartopy.crs as ccrs

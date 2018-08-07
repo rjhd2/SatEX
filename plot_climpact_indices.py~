@@ -1,7 +1,7 @@
 import numpy as np
 import iris
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
 import cartopy.crs as ccrs
@@ -18,7 +18,7 @@ from plotFunctions import line, plot_figure, MedianPairwiseSlopes, plot_time_ser
 
 INDIR = '/scratch/rdunn/satex/tiles/*/'
 OUTPATH = '/scratch/vportge/plots/Climpact/'
-MIN_OR_MAX = 'max'
+MIN_OR_MAX = 'min'
 
 
 
@@ -116,8 +116,6 @@ for INAME in UNITS_DICT:
                         slopes_ANN_SPAIN[INAME] = slopes
                     elif REGION == 'MOROCCO':
                         slopes_ANN_MOROCCO[INAME] = slopes
-
-
 
 
 
