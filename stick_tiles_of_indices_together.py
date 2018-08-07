@@ -20,36 +20,14 @@ import iris.plot as iplt
 import copy
 import iris.coord_categorisation
 
-def plot_years(y, indexname):
-
-    if TIMERANGE == 'ANN':
-        title_time = 'annually'
-    elif TIMERANGE == 'MON':
-        title_time = 'monthly'
-    elif TIMERANGE == 'DAY':
-        title_time = 'daily'
-
-    plt.close()
-    fig=plt.figure()
-    iplt.plot(y)
-    plt.grid()
-    plt.title(indexname+' ('+title_time+')', size=22)
-    plt.ylabel(UNITS_DICT[INAME], size=20)
-    plt.xlabel('years', size=20)
-    plt.tick_params(axis='both', which='major', labelsize=16)
-
-    #plt.show()
-    #iplt.plot(trendcube)
-    plt.savefig(OUTPATH+indexname+'_'+TIMERANGE+'_'+REGION+'.png')
-
-
 def plot_figure(data, gridlons, gridlats, title):
     """Plot map of index for some day."""
     plt.close()
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+    cbar_value = np.amax(abs(data))
 
-    lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r')
+    lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r', vmin = -cbar_value, vmax = cbar_value)
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
     ax.set_extent((np.amin(gridlons)-2, np.amax(gridlons)+2, np.amin(gridlats)-2, np.amax(gridlats)+2), crs = ccrs.PlateCarree())
 
@@ -57,7 +35,7 @@ def plot_figure(data, gridlons, gridlats, title):
                                                 name='admin_0_countries',
                                                 scale='50m')
     ax.add_feature(political_bdrys,
-                edgecolor='b', facecolor='none', zorder=2)
+                   edgecolor='b', facecolor='none', zorder=2)
     gl = ax.gridlines(draw_labels=True)
     plt.title(title, y=1.08, size=22)
     cbar.set_label(UNITS_DICT[INAME]+' per decade', size=20)
@@ -171,8 +149,17 @@ python_indices = ['TXx', 'TNx', 'TXn', 'TNn', 'DTR', 'FD', 'TR']
 
 not_working = []
 slopes = []
-REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 47.5, 15.0, 52.5], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
+
+slopes_ANN_GERMANY = {}
+slopes_MON_GERMANY = {}
+
+slopes_ANN_SPAIN = {}
+slopes_MON_SPAIN = {}
+
+slopes_ANN_MOROCCO = {}
+slopes_MON_MOROCCO = {}
 
 for INAME in python_indices:
     print(INAME)
@@ -288,6 +275,23 @@ for INAME in python_indices:
             #iplt.plot(trendcube_lower, label='lower trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
             #iplt.plot(trendcube_upper, label='upper trend: '+str(round(slope*365*10.,2))+' '+UNITS_DICT[INAME]+' per decade')
 
+            if TIMERANGE == 'MON':
+                if REGION == 'GERMANY':
+                    slopes_MON_GERMANY[INAME] = str(round(slope*365*10.*24.,2))
+                elif REGION == 'SPAIN':
+                    slopes_MON_SPAIN[INAME] = str(round(slope*365*10.*24.,2))
+                elif REGION == 'MOROCCO':
+                    slopes_MON_MOROCCO[INAME] = str(round(slope*365*10.*24.,2))
+
+
+            if TIMERANGE == 'ANN':
+                if REGION == 'GERMANY':
+                    slopes_ANN_GERMANY[INAME] = str(round(slope*365*10.*24.,2))
+                elif REGION == 'SPAIN':
+                    slopes_ANN_SPAIN[INAME] = str(round(slope*365*10.*24.,2))
+                elif REGION == 'MOROCCO':
+                    slopes_ANN_MOROCCO[INAME] = str(round(slope*365*10.*24.,2))
+
             plt.legend(fontsize = 16)
             plt.tight_layout()
             plt.tick_params(axis='both', which='major', labelsize=16)
@@ -312,11 +316,36 @@ for INAME in python_indices:
                 GRIDLATS = ann_data.coord('latitude').points
 
                 trends = np.ma.masked_where(np.isnan(trends), trends)
-                plot_figure(trends, GRIDLONS, GRIDLATS, 'Trend of '+ INAME+' CM SAF '+' ('+TITLE_TIME+')')
+                plot_figure(trends, GRIDLONS, GRIDLATS, 'Trend of '+ INAME+' CM SAF '+' ('+TITLE_TIME+')', UNITS_DICT, INAME, OUTPATH, REGION)
 
                     #except:
                         #not_working.append(INAME)
 print(not_working)
 
+OUTPATH_trends = '/scratch/vportge/plots/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'
 
+with open(OUTPATH_trends+'trends_MON_MOROCCO.txt', 'w') as f:
+    for key, value in slopes_MON_MOROCCO.items():
+        f.write('%s, %s\n' % (key, value))
+
+
+with open(OUTPATH_trends+'trends_ANN_MOROCCO.txt', 'w') as f:
+    for key, value in slopes_ANN_MOROCCO.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_MON_SPAIN.txt', 'w') as f:
+    for key, value in slopes_MON_SPAIN.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_ANN_SPAIN.txt', 'w') as f:
+    for key, value in slopes_ANN_SPAIN.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_MON_GERMANY.txt', 'w') as f:
+    for key, value in slopes_MON_GERMANY.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_ANN_GERMANY.txt', 'w') as f:
+    for key, value in slopes_ANN_GERMANY.items():
+        f.write('%s, %s\n' % (key, value))
 

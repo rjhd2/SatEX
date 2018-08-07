@@ -2,8 +2,7 @@
 import numpy as np
 import iris
 import matplotlib
-matplotlib.use('Agg')
-
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
 import matplotlib.cm as mpl_cm
@@ -24,106 +23,7 @@ import datetime
 import netCDF4
 import cf_units
 
-
-
-
-
-
-def line(x,t,m):
-    '''Plot a line. '''
-    return m*x+t
-
-
-def plot_figure(data, gridlons, gridlats, title):
-    """Plot map of index for some day."""
-    plt.close()
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
-    lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r')
-    cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
-    ax.set_extent((np.amin(gridlons)-2, np.amax(gridlons)+2, np.amin(gridlats)-2, np.amax(gridlats)+2), crs = ccrs.PlateCarree())
-
-    political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
-                                                name='admin_0_countries',
-                                                scale='50m')
-    ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
-    gl = ax.gridlines(draw_labels=True)
-    plt.title(title, y=1.08, size=22)
-    cbar.set_label(UNITS_DICT[indexname]+' per decade', size=20)
-    plt.savefig(OUTPATH+indexname+'_map_of_trend_'+REGION+'.png')
-    return
-
-#***************************************
-def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with_mdi = False):
-    '''
-    Calculate the median of the pairwise slopes
-
-    :param array xdata: x array
-    :param array ydata: y array
-    :param float mdi: missing data indicator
-    :param bool mult10: multiply output trends by 10 (to get per decade)
-    :param bool sort: sort the Xdata first
-    :returns: float of slope
-    '''
-    import numpy as np
-    # sort xdata
-    if sort:
-        sort_order = np.argsort(xdata)
-
-        xdata = xdata[sort_order]
-        ydata = ydata[sort_order]
-
-    slopes=[]
-    y_intercepts = []
-    for i in range(len(xdata)):
-        for j in range(i+1,len(xdata)):
-            if calc_with_mdi == True:
-                if mdi[j] == False and mdi[i] == False: #changed from: if ydata[j]!=mdi and ydata[i]!=mdi:
-                    slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
-                    y_intercepts += [(xdata[j]*ydata[i]-xdata[i]*ydata[j])/(xdata[j]-xdata[i])]
-            elif calc_with_mdi == False:
-                slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
-                y_intercepts += [(xdata[j]*ydata[i]-xdata[i]*ydata[j])/(xdata[j]-xdata[i])]
-
-    mpw=np.ma.median(np.ma.array(slopes))
-    y_intercept_point = np.ma.median(np.array(y_intercepts))
-
-    # copied from median_pairwise.pro methodology (Mark McCarthy)
-    slopes.sort()
-
-    if calc_with_mdi == True:
-        good_data = np.where(mdi == False)#good_data=np.where(ydata == False)[0]
-        n=len(ydata[good_data])
-
-    elif calc_with_mdi == False:
-        n=len(ydata)
-
-    try:
-
-        dof=n*(n-1)/2
-        w=np.sqrt(n*(n-1)*((2.*n)+5.)/18.)
-
-        rank_upper=((dof+1.96*w)/2.)+1
-        rank_lower=((dof-1.96*w)/2.)+1
-
-        if rank_upper >= len(slopes): rank_upper=len(slopes)-1
-        if rank_upper < 0: rank_upper=0
-        if rank_lower < 0: rank_lower=0
-
-        upper=slopes[int(rank_upper)]
-        lower=slopes[int(rank_lower)]
-
-        if mult10:
-            return 10. * mpw, 10. * lower, 10. * upper, y_intercept_point      # MedianPairwiseSlopes
-        else:
-            return  mpw, lower, upper, y_intercept_point      # MedianPairwiseSlopes
-
-    except:
-        if mult10:
-            return 10. * mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
-        else:
-            return  mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
-
+from plotFunctions import line, plot_figure, MedianPairwiseSlopes
 
 
 UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU': 'days', 'TN10p': '%', 'TN90p': '%', 'TNn': u'\u00B0C', 'TNx': u'\u00B0C', 
@@ -133,8 +33,16 @@ UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU
 # gibt es, aber nicht bei climpact:  'GSL': 'days',
 #UNITS_DICT = {'CSDI': 'days'}
 
-REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 47.5, 15.0, 52.5], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
+slopes_ANN_GERMANY = {}
+slopes_MON_GERMANY = {}
+
+slopes_ANN_SPAIN = {}
+slopes_MON_SPAIN = {}
+
+slopes_ANN_MOROCCO = {}
+slopes_MON_MOROCCO = {}
 
 for indexname in UNITS_DICT.keys():
     print(indexname)
@@ -238,13 +146,22 @@ for indexname in UNITS_DICT.keys():
             if month_data.name() == 'Ann':
                 ANN_data = copy.deepcopy(month_data)
                 #calculate spatial average#
-                ANN_data_avg=ANN_data.collapsed('latitude', iris.analysis.MEAN)
-                ANN_data_avg=ANN_data_avg.collapsed('longitude', iris.analysis.MEAN)
+                ANN_data.coord('latitude').guess_bounds()
+                ANN_data.coord('longitude').guess_bounds()
+                ANN_data_areas = iris.analysis.cartography.area_weights(ANN_data)
+
+                ANN_data_avg = ANN_data.collapsed(['latitude', 'longitude'], iris.analysis.MEAN, weights=ANN_data_areas)
+                #ANN_data_avg = ANN_data_avg.collapsed('longitude', iris.analysis.MEAN)
                 ANN_index = i*1.
 
             else:
-                month_avg=month_data.collapsed('latitude', iris.analysis.MEAN)
-                month_avg=month_avg.collapsed('longitude', iris.analysis.MEAN)
+                month_data.coord('latitude').guess_bounds()
+                month_data.coord('longitude').guess_bounds()
+
+                month_data_areas = iris.analysis.cartography.area_weights(month_data)
+
+                month_avg = month_data.collapsed(['latitude', 'longitude'], iris.analysis.MEAN, weights=month_data_areas)
+                #month_avg = month_avg.collapsed('longitude', iris.analysis.MEAN)
                 spat_avg_month.append(month_avg)
         del(data[int(ANN_index)])
 
@@ -283,6 +200,9 @@ for indexname in UNITS_DICT.keys():
         fig = plt.figure(figsize=(10, 5))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
         #ax.set_extent([ -30., 65., 30, 65. ], crs=ccrs.PlateCarree())
+
+        ANN_data.coord('time').guess_bounds()
+
         ANN_data_time_avg = ANN_data.collapsed('time', iris.analysis.MEAN)
         ANN_data_lon = ANN_data_time_avg.coord('longitude').points
         ANN_data_lat = ANN_data_time_avg.coord('latitude').points
@@ -304,7 +224,7 @@ for indexname in UNITS_DICT.keys():
         ########################################################
         #Plot time series of years 1991 - 2015 with trend line #
         ########################################################
-        if len(original_data)>1:
+        if len(original_data)>1: #Then it's not only annual data.
             plt.close()
             YDATA = values_spat_avg
             XDATA = times_spat_avg
@@ -330,33 +250,49 @@ for indexname in UNITS_DICT.keys():
             plt.tick_params(axis='both', which='major', labelsize=16)
             plt.savefig(OUTPATH+indexname+'_time_series_GHCNDEX_with_trend_monthly_'+REGION+'.png')
 
-        elif len(original_data) == 1:
-            plt.close()
-            YDATA = ANN_data_avg.data
-            XDATA = ANN_data_avg.coord('time').points
-            #convert to datetime object so that it can be plotted easily.
-            times_datetime = [netCDF4.num2date(i, units = 'days since 1970-01-01 00:00', calendar = 'standard') for i in ANN_data_avg.coord('time').points]
-
-            trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,10,mult10 = False, sort = False, calc_with_mdi=False)
-            slope = trendanalysis[0]
-            slope_lower_uncrty = trendanalysis[1]
-            slope_upper_uncrty = trendanalysis[2]
-            Y_INTERCEPTION = trendanalysis[3]
 
 
-            trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
-            plt.plot(times_datetime, YDATA)
-            plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
-            plt.grid()
-            plt.title(indexname + ' GHCNDEX annually '+REGION, size=22)
-            plt.xlabel('years', size=20)
-            plt.ylabel(UNITS_DICT[indexname], size=20)
+            if REGION == 'GERMANY':
+                slopes_MON_GERMANY[indexname] = str(round(slope*365*10.,2))
+            elif REGION == 'SPAIN':
+                slopes_MON_SPAIN[indexname] = str(round(slope*365*10.,2))
+            elif REGION == 'MOROCCO':
+                slopes_MON_MOROCCO[indexname] = str(round(slope*365*10.,2))
 
-            plt.legend(fontsize = 16)
-            plt.tight_layout()
-            plt.tick_params(axis='both', which='major', labelsize=16)
-            plt.savefig(OUTPATH+indexname+'_time_series_GHCNDEX_with_trend_annually_'+REGION+'.png')
 
+
+        plt.close()
+        YDATA = ANN_data_avg.data
+        XDATA = ANN_data_avg.coord('time').points
+        #convert to datetime object so that it can be plotted easily.
+        times_datetime = [netCDF4.num2date(i, units = 'days since 1970-01-01 00:00', calendar = 'standard') for i in ANN_data_avg.coord('time').points]
+
+        trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,10,mult10 = False, sort = False, calc_with_mdi=False)
+        slope = trendanalysis[0]
+        slope_lower_uncrty = trendanalysis[1]
+        slope_upper_uncrty = trendanalysis[2]
+        Y_INTERCEPTION = trendanalysis[3]
+
+
+        trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
+        plt.plot(times_datetime, YDATA)
+        plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
+        plt.grid()
+        plt.title(indexname + ' GHCNDEX annually '+REGION, size=22)
+        plt.xlabel('years', size=20)
+        plt.ylabel(UNITS_DICT[indexname], size=20)
+
+        plt.legend(fontsize = 16)
+        plt.tight_layout()
+        plt.tick_params(axis='both', which='major', labelsize=16)
+        plt.savefig(OUTPATH+indexname+'_time_series_GHCNDEX_with_trend_annually_'+REGION+'.png')
+
+        if REGION == 'GERMANY':
+            slopes_ANN_GERMANY[indexname] = str(round(slope*365*10.,2))
+        elif REGION == 'SPAIN':
+            slopes_ANN_SPAIN[indexname] = str(round(slope*365*10.,2))
+        elif REGION == 'MOROCCO':
+            slopes_ANN_MOROCCO[indexname] = str(round(slope*365*10.,2))
 
 
         #####################################################
@@ -380,11 +316,36 @@ for indexname in UNITS_DICT.keys():
                     TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*365*10.
 
         TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
-        plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of '+ indexname+' '+REGION)
+        plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of '+ indexname+' '+REGION, UNITS_DICT, indexname, OUTPATH, REGION)
 
 
 
+OUTPATH_trends = '/scratch/vportge/plots/GHCNDEX/'
 
+with open(OUTPATH_trends+'trends_MON_MOROCCO.txt', 'w') as f:
+    for key, value in slopes_MON_MOROCCO.items():
+        f.write('%s, %s\n' % (key, value))
+
+
+with open(OUTPATH_trends+'trends_ANN_MOROCCO.txt', 'w') as f:
+    for key, value in slopes_ANN_MOROCCO.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_MON_SPAIN.txt', 'w') as f:
+    for key, value in slopes_MON_SPAIN.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_ANN_SPAIN.txt', 'w') as f:
+    for key, value in slopes_ANN_SPAIN.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_MON_GERMANY.txt', 'w') as f:
+    for key, value in slopes_MON_GERMANY.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'trends_ANN_GERMANY.txt', 'w') as f:
+    for key, value in slopes_ANN_GERMANY.items():
+        f.write('%s, %s\n' % (key, value))
 
 
 
