@@ -2,7 +2,7 @@
 import numpy as np
 import iris
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
 import matplotlib.cm as mpl_cm
@@ -22,7 +22,6 @@ import copy
 import datetime
 import netCDF4
 import cf_units
-
 from plotFunctions import line, plot_figure, MedianPairwiseSlopes
 
 
@@ -218,7 +217,7 @@ for indexname in UNITS_DICT.keys():
         ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
         cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
         cb.set_label(indexname+' Index Value')
-        plt.title('Map of averaged '+indexname+' values (GHCNDEX) '+REGION)
+        plt.title('Map of averaged '+indexname+' values (GHCNDEX)')
         plt.savefig(OUTPATH+indexname+'_GHCNDEX_map_averaged_'+REGION+'.png')
 
         ########################################################
@@ -241,7 +240,7 @@ for indexname in UNITS_DICT.keys():
             plt.plot(times_datetime, YDATA)
             plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
             plt.grid()
-            plt.title(indexname + ' GHCNDEX monthly '+REGION, size=22)
+            plt.title('Time series of monthly GHCNDEX ' + indexname + ' in ' + REGION , size=22)
             plt.xlabel('years', size=20)
             plt.ylabel(UNITS_DICT[indexname], size=20)
 
@@ -278,7 +277,9 @@ for indexname in UNITS_DICT.keys():
         plt.plot(times_datetime, YDATA)
         plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
         plt.grid()
-        plt.title(indexname + ' GHCNDEX annually '+REGION, size=22)
+
+
+        plt.title('Time series of annually GHCNDEX ' + indexname + ' in ' + REGION , size=22)
         plt.xlabel('years', size=20)
         plt.ylabel(UNITS_DICT[indexname], size=20)
 
@@ -316,7 +317,9 @@ for indexname in UNITS_DICT.keys():
                     TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*365*10.
 
         TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
-        plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of '+ indexname+' '+REGION, UNITS_DICT, indexname, OUTPATH, REGION)
+        plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + indexname , UNITS_DICT, indexname, OUTPATH, REGION)
+
+
 
 
 

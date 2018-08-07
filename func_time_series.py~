@@ -1,0 +1,40 @@
+def plot_time_series_with_trend(cube, period, infos, units_dict ):
+    ###############################################################
+    #Compute the Trend for the 1991/01/01 - 2004/12/31 time period#
+    ###############################################################
+
+    #infos = [TITLE_TIME, INAME, REGION, timerange, outpath, instrument]
+
+    title_time = infos[0]
+    iname = infos[1]
+    region = infos[2]
+    timerange = infos[3]
+    outpath = infos[4]
+
+    ydata = cube.data
+    xdata = cube.coord('time').points
+    mdi  = ydata.mask
+
+    #Compute trend with MedianPairwisesSlopes
+    trendanalysis = MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with_mdi=True)
+    slope = trendanalysis[0]
+    y_interception = trendanalysis[3]
+
+    trendcube = copy.deepcopy(cube)
+    trendcube.rename('Trend')
+    trendcube.data=line(xdata, y_interception, slope)
+
+    #Begin plot#
+    plt.close()
+    fig=plt.figure(figsize = (10, 8))
+    iplt.plot(cube)
+    plt.grid()
+    plt.title('Time series of '+title_time+' '+instrument+' ' + iname + ' in ' + region, size=22)
+    plt.ylabel(units_dict[iname], size=20)
+    plt.xlabel('years', size=20)
+    iplt.plot(trendcube, label='trend: '+str(round(slope*365*10.*24.,2))+' '+units_dict[iname]+' per decade ' + region)
+    plt.legend(fontsize = 16)
+    plt.tight_layout()
+    plt.tick_params(axis='both', which='major', labelsize=16)
+    plt.savefig(outpath+iname+'_with_trend_'+timerange+'_'+region+'.png')
+    return
