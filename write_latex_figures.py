@@ -1,32 +1,68 @@
 #this programme writes latex codes.
 python_indices = ['TXx', 'TNx', 'TXn', 'TNn', 'DTR', 'FD', 'TR']
+climpact_indices = ['csdi', 'id', 'su', 'tn10p', 'tn90p', 'tnn', 'tnx', 'tx10p', 'tx90p', 'txn', 'txx', 'wsdi']
+ghcndex_climpact_indices = ['CSDI', 'ID',  'SU',  'TN10p', 'TN90p',  'TNn',  'TNx',
+              'TX10p', 'TX90p','TXn', 'TXx', 'WSDI']
 
 
-REGION = 'GERMANY'
+REGION = 'SPAIN'
 
-with open('climpact_indices.txt', 'w') as f:
+MIN_OR_MAX = 'max'
+
+with open('python_indices_'+MIN_OR_MAX+'_'+REGION+'.txt', 'w') as f:
     for INAME in python_indices:
         f.write('\n\n\n')
         f.write('\\begin{figure*}\n\centering\n\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
-        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/Python_Indices/min_LST_in_cold_window/'+REGION+'/'+INAME+'_map_of_trend_'+REGION+'.png}')
+        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'+INAME+'_map_of_trend_'+REGION+'.png}')
         f.write('\caption[]{{\small CM SAF LST}}\n\\end{subfigure}\n\hfill\n')
 
-        f.write('\\begin{figure*}\n\centering\n\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
         f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/GHCNDEX/'+REGION+'/'+INAME+'_map_of_trend_'+REGION+'.png}')
-        f.write('\caption[]{{\small GHCNDEX}}\n\\end{subfigure}\n\hfill\n')
+        f.write('\caption[]{{\small GHCNDEX}}\n\\end{subfigure}\n')
         f.write('\\vskip\\baselineskip\n')
 
-        f.write('\\begin{figure*}\n\centering\n\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
-        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/Python_Indices/min_LST_in_cold_window/'+REGION+'/'+INAME+'_with_trend_ANN_'+REGION+'.png}')
-        f.write('\caption[]{{\small CM SAF LST}}\n\\end{subfigure}\n\hfill\n')
+        f.write('\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'+INAME+'_with_trend_ANN_'+REGION+'.png}')
+        f.write('\caption[]{{\small CM SAF LST}}\n\\end{subfigure}\n')
         f.write('\quad\n')
 
-        f.write('\\begin{figure*}\n\centering\n\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
         f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/GHCNDEX/'+REGION+'/'+INAME+'_time_series_GHCNDEX_with_trend_annually_'+REGION+'.png}')
         f.write('\caption[]{{\small GHCNDEX}}\n\\end{subfigure}\n')
 
-        f.write('\caption[]\n{\small '+INAME+' }\n \label{fig:'+INAME+'}\n')
+        f.write('\caption[]\n{\small '+INAME+' }\n \label{fig:'+INAME+'_'+MIN_OR_MAX +'}\n')
         f.write('\\end{figure*}')
+
+
+with open('climpact_indices_'+MIN_OR_MAX+'_'+REGION+'.txt', 'w') as f:
+    for i in range(len(climpact_indices)):
+        ICLIMP = climpact_indices[i]
+        IGHCNDEX = ghcndex_climpact_indices[i]
+
+        f.write('\n\n\n')
+        f.write('\\begin{figure*}\n\centering\n\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/Climpact/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'+ICLIMP+'_map_of_trend_'+REGION+'.png}')
+        f.write('\caption[]{{\small CM SAF LST}}\n\\end{subfigure}\n\hfill\n')
+
+        f.write('\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/GHCNDEX/'+REGION+'/'+IGHCNDEX+'_map_of_trend_'+REGION+'.png}')
+        f.write('\caption[]{{\small GHCNDEX}}\n\\end{subfigure}\n')
+        f.write('\\vskip\\baselineskip\n')
+
+        f.write('\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/Climpact/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'+ICLIMP+'_with_trend_ANN_'+REGION+'.png}')
+        f.write('\caption[]{{\small CM SAF LST}}\n\\end{subfigure}\n')
+        f.write('\quad\n')
+
+        f.write('\\begin{subfigure}[b]{0.475\\textwidth}\n\centering\n')
+        f.write('\\includegraphics[width=\\textwidth]{/scratch/vportge/plots/GHCNDEX/'+REGION+'/'+IGHCNDEX+'_time_series_GHCNDEX_with_trend_annually_'+REGION+'.png}')
+        f.write('\caption[]{{\small GHCNDEX}}\n\\end{subfigure}\n')
+
+        f.write('\caption[]\n{\small '+IGHCNDEX+' }\n \label{fig:'+IGHCNDEX+'_'+MIN_OR_MAX +'}\n')
+        f.write('\\end{figure*}')
+
+
+
 
 '''
                 {{\small CM SAF LST}}    

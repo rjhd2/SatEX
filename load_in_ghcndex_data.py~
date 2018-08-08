@@ -196,7 +196,7 @@ for indexname in UNITS_DICT.keys():
         ###################################################################
 
         plt.close()
-        fig = plt.figure(figsize=(10, 5))
+        fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
         #ax.set_extent([ -30., 65., 30, 65. ], crs=ccrs.PlateCarree())
 
@@ -217,13 +217,13 @@ for indexname in UNITS_DICT.keys():
         ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
         cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
         cb.set_label(indexname+' Index Value')
-        plt.title('Map of averaged '+indexname+' values (GHCNDEX) '+REGION)
+        plt.title('Map of averaged '+indexname+' values (GHCNDEX)')
         plt.savefig(OUTPATH+indexname+'_GHCNDEX_map_averaged_'+REGION+'.png')
 
         ########################################################
         #Plot time series of years 1991 - 2015 with trend line #
         ########################################################
-        if len(original_data)>1: #Then it's not only annual data.
+        if len(original_data)>1: #Then it's monthly data.
             plt.close()
             YDATA = values_spat_avg
             XDATA = times_spat_avg
@@ -237,6 +237,8 @@ for indexname in UNITS_DICT.keys():
             Y_INTERCEPTION = trendanalysis[3]
 
             trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
+
+            fig = plt.figure(figsize = (10, 8))
             plt.plot(times_datetime, YDATA)
             plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
             plt.grid()
@@ -260,25 +262,49 @@ for indexname in UNITS_DICT.keys():
 
 
 
-        plt.close()
         YDATA = ANN_data_avg.data
         XDATA = ANN_data_avg.coord('time').points
         #convert to datetime object so that it can be plotted easily.
         times_datetime = [netCDF4.num2date(i, units = 'days since 1970-01-01 00:00', calendar = 'standard') for i in ANN_data_avg.coord('time').points]
 
+        YDATA1 = YDATA[0:14]
+        YDATA2 = YDATA[14:]
+        XDATA1 = XDATA[0:14]
+        XDATA2 = XDATA[14:]
+        times_datetime1 = times_datetime[0:14]
+        times_datetime2 = times_datetime[14:]
+
+
+
+
         trendanalysis = MedianPairwiseSlopes(XDATA,YDATA,10,mult10 = False, sort = False, calc_with_mdi=False)
         slope = trendanalysis[0]
-        slope_lower_uncrty = trendanalysis[1]
-        slope_upper_uncrty = trendanalysis[2]
         Y_INTERCEPTION = trendanalysis[3]
 
 
+        trendanalysis1 = MedianPairwiseSlopes(XDATA1,YDATA1,10,mult10 = False, sort = False, calc_with_mdi=False)
+        slope1 = trendanalysis1[0]
+        Y_INTERCEPTION1 = trendanalysis1[3]
+
+        trendanalysis2 = MedianPairwiseSlopes(XDATA2,YDATA2,10,mult10 = False, sort = False, calc_with_mdi=False)
+        slope2 = trendanalysis2[0]
+        Y_INTERCEPTION2 = trendanalysis2[3]
+
+
         trendline=line(np.array(XDATA), np.array(Y_INTERCEPTION), slope)
+        trendline1=line(np.array(XDATA1), np.array(Y_INTERCEPTION1), slope1)
+        trendline2=line(np.array(XDATA2), np.array(Y_INTERCEPTION2), slope2)
+
+        time_factor = 365*10.
+
+        plt.close()
+        fig=plt.figure(figsize = (10, 8))
         plt.plot(times_datetime, YDATA)
-        plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[indexname]+' per decade')
+        plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*time_factor,2))+ ' ' + UNITS_DICT[indexname]+' per decade'+ ' (1991-2015)')
+        plt.plot(times_datetime1, trendline1, label='trend: '+str(round(slope*time_factor,2))+ ' ' + UNITS_DICT[indexname]+' per decade'+ ' (1991-2004)')
+        plt.plot(times_datetime2, trendline2, label='trend: '+str(round(slope*time_factor,2))+ ' ' + UNITS_DICT[indexname]+' per decade'+ ' (2005-2015)')
+
         plt.grid()
-
-
         plt.title('Time series of annually GHCNDEX ' + indexname + ' in ' + REGION , size=22)
         plt.xlabel('years', size=20)
         plt.ylabel(UNITS_DICT[indexname], size=20)
@@ -289,11 +315,11 @@ for indexname in UNITS_DICT.keys():
         plt.savefig(OUTPATH+indexname+'_time_series_GHCNDEX_with_trend_annually_'+REGION+'.png')
 
         if REGION == 'GERMANY':
-            slopes_ANN_GERMANY[indexname] = str(round(slope*365*10.,2))
+            slopes_ANN_GERMANY[indexname] = [str(round(slope*time_factor,2)), str(round(slope1*time_factor,2)), str(round(slope2*time_factor,2))]
         elif REGION == 'SPAIN':
-            slopes_ANN_SPAIN[indexname] = str(round(slope*365*10.,2))
+            slopes_ANN_SPAIN[indexname] = [str(round(slope*time_factor,2)), str(round(slope1*time_factor,2)), str(round(slope2*time_factor,2))]
         elif REGION == 'MOROCCO':
-            slopes_ANN_MOROCCO[indexname] = str(round(slope*365*10.,2))
+            slopes_ANN_MOROCCO[indexname] = [str(round(slope*time_factor,2)), str(round(slope1*time_factor,2)), str(round(slope2*time_factor,2))]
 
 
         #####################################################

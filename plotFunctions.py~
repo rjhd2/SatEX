@@ -17,7 +17,7 @@ def line(x,t,m):
 def plot_figure(data, gridlons, gridlats, title, units_dict, indexname, outpath, region):
     """Plot map of index for some day."""
     plt.close()
-    fig = plt.figure()
+    fig = plt.figure(figsize = (10, 8))
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     cbar_value = np.amax(abs(data))
     lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r', vmin = -cbar_value, vmax = cbar_value)

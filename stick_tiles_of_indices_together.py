@@ -99,7 +99,21 @@ for INAME in python_indices:
         #Add a new time coordinate ('year') so that an annual average can be computed.#
         ###############################################################################
         iris.coord_categorisation.add_year(data, 'time', name='year')
-        ann_data = data.aggregated_by('year', iris.analysis.MEAN)
+
+        #'TXx', 'TNx', 'TXn', 'TNn', 'DTR', 'FD', 'TR'
+        if INAME == 'TXx' or INAME == 'TNx':
+            ann_data = data.aggregated_by('year', iris.analysis.MAX)
+
+        elif INAME == 'TXn' or INAME == 'TNn':
+            ann_data = data.aggregated_by('year', iris.analysis.MIN)
+
+        elif INAME == 'DTR':
+            ann_data = data.aggregated_by('year', iris.analysis.MEAN)
+
+        elif INAME == 'FD' or INAME == 'TR':
+            ann_data = data.aggregated_by('year', iris.analysis.SUM)
+
+        #ann_data = data.aggregated_by('year', iris.analysis.MEAN)
         ann_data.rename(cube_name[:-3]+'ANN' )
 
         for TIMERANGE in possible_times:

@@ -17,7 +17,7 @@ def line(x,t,m):
 def plot_figure(data, gridlons, gridlats, title, units_dict, indexname, outpath, region):
     """Plot map of index for some day."""
     plt.close()
-    fig = plt.figure()
+    fig = plt.figure(figsize = (10, 8))
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     cbar_value = np.amax(abs(data))
     lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'RdBu_r', vmin = -cbar_value, vmax = cbar_value)
@@ -102,9 +102,9 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     plt.ylabel(units_dict[iname], size=20)
     plt.xlabel('years', size=20)
 
-    iplt.plot(trendcube, label='trend: '+str(round(slope*time_factor,2))+' '+units_dict[iname]+' per decade ' + region+ ' (1991-2015)')
-    iplt.plot(trendcube1, label='trend: '+str(round(slope1*time_factor,2))+' '+units_dict[iname]+' per decade ' + region + ' (1991-2004)')
-    iplt.plot(trendcube2, label='trend: '+str(round(slope2*time_factor,2))+' '+units_dict[iname]+' per decade ' + region + ' (2005-2015)')
+    iplt.plot(trendcube, label='trend: '+str(round(slope*time_factor,2))+' '+units_dict[iname]+' per decade' + ' (1991-2015)')
+    iplt.plot(trendcube1, label='trend: '+str(round(slope1*time_factor,2))+' '+units_dict[iname]+' per decade' +  ' (1991-2004)')
+    iplt.plot(trendcube2, label='trend: '+str(round(slope2*time_factor,2))+' '+units_dict[iname]+' per decade' + ' (2005-2015)')
 
     plt.legend(fontsize = 16, loc = 'best')
     plt.tight_layout()
