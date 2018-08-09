@@ -136,7 +136,9 @@ for INAME in UNITS_DICT:
                     GRIDLATS = data.coord('latitude').points
                     trends = np.ma.masked_where(np.isnan(trends), trends)
 
-                    plot_figure(trends, GRIDLONS, GRIDLATS,  'Trend of annually CM SAF ' + INAME, UNITS_DICT, INAME, OUTPATH, REGION)
+                    OUTNAME = OUTPATH+INAME+'_map_of_trend_'+REGION+'.png'
+
+                    plot_figure(trends, GRIDLONS, GRIDLATS,  'Trend of annually CM SAF ' + INAME, UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
 
 
                 #except:

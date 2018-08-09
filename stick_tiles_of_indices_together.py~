@@ -52,6 +52,10 @@ slopes_MON_SPAIN = {}
 slopes_ANN_MOROCCO = {}
 slopes_MON_MOROCCO = {}
 
+cbar_extent_GERMANY = {}
+cbar_extent_MOROCCO = {}
+cbar_extent_SPAIN = {}
+
 for INAME in python_indices:
     print(INAME)
 
@@ -166,19 +170,80 @@ for INAME in python_indices:
             #Plot map of calculated trends for every gridpoint #
             ####################################################
             if TIMERANGE == 'ANN':
+                print('Begin calculation of trends for map')
+                cbar_path = '/scratch/vportge/plots/GHCNDEX/cbar_'+REGION+'.txt'
+                cbar_dict = {}
+                with open(cbar_path) as f:
+                    cbar_extents = f.read().splitlines()
+
+                for i in range(len(cbar_extents)):
+                    val = cbar_extents[i].split(',')
+                    cbar_dict[val[0]] = [val[1][2:], val[2][1:-1]]
+
                 index_values = ann_data.data
-                trends = np.zeros(index_values.shape[1:3]) # lat, lon
+                TRENDS_ANN = np.zeros(index_values.shape[1:3]) # lat, lon
                 XDATA_ANN = ann_data.coord('time').points #in hours!
-                for lat in range(trends.shape[0]):
-                    for lon in range(trends.shape[1]):
+                for lat in range(TRENDS_ANN.shape[0]):
+                    for lon in range(TRENDS_ANN.shape[1]):
                         YDATA_GRIDPOINT = index_values[:, lat, lon]
-                        trends[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
 
                 GRIDLONS = ann_data.coord('longitude').points
                 GRIDLATS = ann_data.coord('latitude').points
 
-                trends = np.ma.masked_where(np.isnan(trends), trends)
-                plot_figure(trends, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME, UNITS_DICT, INAME, OUTPATH, REGION)
+                TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
+
+                OUTNAME = OUTPATH+INAME+'_map_of_trend_'+REGION+'.png'
+
+                if REGION == 'GERMANY':
+                    cbar_extent_GERMANY[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                elif REGION == 'SPAIN':
+                    cbar_extent_SPAIN[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                elif REGION == 'MOROCCO':
+                    cbar_extent_MOROCCO[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+
+
+                #begin Calculation for trends for first time period: 1991 -2004
+
+                time_constraint1 = iris.Constraint(time=lambda c: c.point.year < 2005)
+                period1 = ann_data.extract(time_constraint1)
+
+                index_values = period1.data
+                TRENDS_ANN = np.zeros(period1.shape[1:3]) # lat, lon
+                XDATA_ANN = period1.coord('time').points #in hours!
+                for lat in range(TRENDS_ANN.shape[0]):
+                    for lon in range(TRENDS_ANN.shape[1]):
+                        YDATA_GRIDPOINT = index_values[:, lat, lon]
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+
+                TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
+                OUTNAME = OUTPATH+INAME+'_1991-2004_map_of_trend_'+REGION+'.png'
+                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +'(1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+
+
+                #begin Calculation for trends for first time period: 1991 -2004
+                time_constraint2 = iris.Constraint(time=lambda c: c.point.year > 2004)
+                period2 = ann_data.extract(time_constraint2)
+
+
+                index_values = period2.data
+                TRENDS_ANN = np.zeros(period2.shape[1:3]) # lat, lon
+                XDATA_ANN = period2.coord('time').points #in hours!
+                for lat in range(TRENDS_ANN.shape[0]):
+                    for lon in range(TRENDS_ANN.shape[1]):
+                        YDATA_GRIDPOINT = index_values[:, lat, lon]
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+
+                TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
+                OUTNAME = OUTPATH+INAME+'_2005-2015_map_of_trend_'+REGION+'.png'
+                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +'(2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+
+
 
                     #except:
                         #not_working.append(INAME)
@@ -210,4 +275,18 @@ with open(OUTPATH_trends+'trends_MON_GERMANY.txt', 'w') as f:
 with open(OUTPATH_trends+'trends_ANN_GERMANY.txt', 'w') as f:
     for key, value in slopes_ANN_GERMANY.items():
         f.write('%s, %s\n' % (key, value))
+
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY.txt', 'w') as f:
+    for key, value in cbar_extent_GERMANY.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN.txt', 'w') as f:
+    for key, value in cbar_extent_SPAIN.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO.txt', 'w') as f:
+    for key, value in cbar_extent_MOROCCO.items():
+        f.write('%s, %s\n' % (key, value))
+
 

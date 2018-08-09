@@ -18,7 +18,7 @@ from plotFunctions import line, plot_figure, MedianPairwiseSlopes, plot_time_ser
 
 INDIR = '/scratch/rdunn/satex/tiles/*/'
 OUTPATH = '/scratch/vportge/plots/Climpact/'
-MIN_OR_MAX = 'min'
+MIN_OR_MAX = 'max'
 
 
 
@@ -135,6 +135,8 @@ for INAME in UNITS_DICT:
                     GRIDLONS = data.coord('longitude').points
                     GRIDLATS = data.coord('latitude').points
                     trends = np.ma.masked_where(np.isnan(trends), trends)
+
+                    OUTNAME = OUTPATH+INAME+'_map_of_trend_'+REGION+'.png'
 
                     plot_figure(trends, GRIDLONS, GRIDLATS,  'Trend of annually CM SAF ' + INAME, UNITS_DICT, INAME, OUTPATH, REGION)
 
