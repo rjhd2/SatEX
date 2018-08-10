@@ -50,22 +50,24 @@ def plot_figure(data, gridlons, gridlats, title, units_dict, indexname, outpath,
 
         if vmin <=0. and vmax >=0:
             lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap=my_cmap, vmin = -max_vmax, vmax = max_vmax)
-            lst_map.cmap.set_under('blue')
-            lst_map.cmap.set_over('red')
+            #lst_map.cmap.set_under('blue')
+            #lst_map.cmap.set_over('red')
 
         elif vmin <=0 and vmax<=0:
-            lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'ocean', vmin = vmin_cbar, vmax = 0.)
-            lst_map.cmap.set_under('blue')
-            lst_map.cmap.set_over('red')
+            lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = my_cmap, vmin = vmin_cbar, vmax = -vmin_cbar)
+            #lst_map.cmap.set_under('blue')
+            #lst_map.cmap.set_over('red')
         elif vmin >=0 and vmax>=0:
-            lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = 'gist_heat_r', vmin = 0, vmax = vmax_cbar)
-            lst_map.cmap.set_under('blue')
-            lst_map.cmap.set_over('red')
+            lst_map = plt.pcolormesh(gridlons, gridlats, data, transform=ccrs.PlateCarree(), cmap = my_cmap, vmin = -vmax_cbar, vmax = vmax_cbar)
+            #lst_map.cmap.set_under('blue')
+            #lst_map.cmap.set_over('red')
     #plt.show()
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
 
     #cbar = plt.colorbar(lst_map, orientation='horizontal')
     ax.set_extent((np.amin(gridlons)-0.5, np.amax(gridlons)+0.5, np.amin(gridlats)-0.5, np.amax(gridlats)+0.5), crs = ccrs.PlateCarree())
+    ax.add_feature(cfeat.LAND)
+    ax.add_feature(cfeat.OCEAN)
 
     political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
                                                 name='admin_0_countries',

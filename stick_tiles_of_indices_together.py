@@ -18,8 +18,6 @@ import copy
 import iris.coord_categorisation
 from plotFunctions import line, plot_figure, MedianPairwiseSlopes, plot_time_series_with_trend
 
-
-
 MIN_OR_MAX = 'max'
 YEARS = np.arange(1991, 2016)
 MONTHS = ["%.2d" % i for i in range(1,13)]
@@ -55,6 +53,15 @@ slopes_MON_MOROCCO = {}
 cbar_extent_GERMANY = {}
 cbar_extent_MOROCCO = {}
 cbar_extent_SPAIN = {}
+
+#for period 1991-2004
+cbar_extent_GERMANY_period1 = {}
+cbar_extent_MOROCCO_period1 = {}
+cbar_extent_SPAIN_period1 = {}
+#for period 2005-2015
+cbar_extent_GERMANY_period2 = {}
+cbar_extent_MOROCCO_period2 = {}
+cbar_extent_SPAIN_period2 = {}
 
 for INAME in python_indices:
     print(INAME)
@@ -221,7 +228,16 @@ for INAME in python_indices:
 
                 TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
                 OUTNAME = OUTPATH+INAME+'_1991-2004_map_of_trend_'+REGION+'.png'
-                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +'(1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                if REGION == 'GERMANY':
+                    cbar_extent_GERMANY_period1[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                elif REGION == 'SPAIN':
+                    cbar_extent_SPAIN_period1[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                elif REGION == 'MOROCCO':
+                    cbar_extent_MOROCCO_period1[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
 
 
 
@@ -240,7 +256,15 @@ for INAME in python_indices:
 
                 TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
                 OUTNAME = OUTPATH+INAME+'_2005-2015_map_of_trend_'+REGION+'.png'
-                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +'(2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                if REGION == 'GERMANY':
+                    cbar_extent_GERMANY_period2[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                elif REGION == 'SPAIN':
+                    cbar_extent_SPAIN_period2[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
+
+                elif REGION == 'MOROCCO':
+                    cbar_extent_MOROCCO_period2[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
 
 
 
@@ -290,3 +314,28 @@ with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO.txt', 'w') as f:
         f.write('%s, %s\n' % (key, value))
 
 
+with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY_period1.txt', 'w') as f:
+    for key, value in cbar_extent_GERMANY_period1.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN_period1.txt', 'w') as f:
+    for key, value in cbar_extent_SPAIN_period1.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO_period1.txt', 'w') as f:
+    for key, value in cbar_extent_MOROCCO_period1.items():
+        f.write('%s, %s\n' % (key, value))
+
+
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY_period2.txt', 'w') as f:
+    for key, value in cbar_extent_GERMANY_period2.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN_period2.txt', 'w') as f:
+    for key, value in cbar_extent_SPAIN_period2.items():
+        f.write('%s, %s\n' % (key, value))
+
+with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO_period2.txt', 'w') as f:
+    for key, value in cbar_extent_MOROCCO_period2.items():
+        f.write('%s, %s\n' % (key, value))

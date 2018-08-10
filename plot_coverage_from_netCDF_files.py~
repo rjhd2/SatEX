@@ -105,6 +105,7 @@ DATADIR = '/scratch/vportge/CM_SAF_LST_MIN_MAX/COVERAGE/'
 OUTPATH = '/scratch/vportge/plots/CM_SAF/coverage/'
 REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
+#REGIONS = {'EUROPE'}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
 
 #GET_COORDINATES_PATH = '/scratch/vportge/CM_SAF_LST_MIN_MAX/1991/01/LST_max_and_min_19910101.nc'
@@ -182,7 +183,7 @@ for REGION in REGIONS:
 
 
     plt.close()
-    fig = plt.figure(figsize=(16,16))
+    fig = plt.figure(figsize=(16,11))
     ax1 = fig.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
     ax2 = fig.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
     ax3 = fig.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
@@ -209,7 +210,13 @@ for REGION in REGIONS:
         ax3.coastlines()
         ax4.coastlines()
 
-    if REGION != 'EUROPE':
+        ax1.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+        ax2.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+        ax3.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+        ax4.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+
+
+    elif REGION != 'EUROPE':
         political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
                                                 name='admin_0_countries',
                                                 scale='50m')
@@ -218,25 +225,29 @@ for REGION in REGIONS:
         ax3.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
         ax4.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
 
-    ax1.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
-    ax2.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
-    ax3.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
-    ax4.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+
+        ax1.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+        ax2.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+        ax3.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+        ax4.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
 
 
     cbar_ax = fig.add_axes([0.15, 0.07,  0.7, 0.04])
     cbar = fig.colorbar(lst_map1, orientation='horizontal', extend='both', cax=cbar_ax)
     cbar.ax.tick_params(labelsize = 20)
     cbar.set_label('% of possible days that could have been observed', size=20)
+    if REGION != 'EUROPE':
+        fig.suptitle('Average coverage of LST in cold window '+REGION, size=28)
+    else:
+        fig.suptitle('Average coverage of LST in cold window', size=28)
 
-    fig.suptitle('Average coverage of LST in cold window', size=28)
     plt.tight_layout()
 
     plt.savefig(OUTPATH+'coverage_LST_cold_'+REGION+'.png')
 
 
     plt.close()
-    fig = plt.figure(figsize=(16,16))
+    fig = plt.figure(figsize=(16,11))
     ax1 = fig.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
     ax2 = fig.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
     ax3 = fig.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
@@ -257,13 +268,20 @@ for REGION in REGIONS:
     ax3.set_title('JJA', size=26)
     ax4.set_title('SON', size=26)
 
+
     if REGION == 'EUROPE':
         ax1.coastlines()
         ax2.coastlines()
         ax3.coastlines()
         ax4.coastlines()
 
-    if REGION != 'EUROPE':
+        ax1.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+        ax2.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+        ax3.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+        ax4.set_extent((-18.0, 58, np.amin(LATS)-0.5, 55), crs = ccrs.PlateCarree())
+
+
+    elif REGION != 'EUROPE':
         political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
                                                 name='admin_0_countries',
                                                 scale='50m')
@@ -272,17 +290,23 @@ for REGION in REGIONS:
         ax3.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
         ax4.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
 
-    ax1.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
-    ax2.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
-    ax3.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
-    ax4.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+
+        ax1.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+        ax2.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+        ax3.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+        ax4.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
+
 
     cbar_ax = fig.add_axes([0.15, 0.07,  0.7, 0.04])
     cbar = fig.colorbar(lst_map1, orientation='horizontal', extend='both', cax=cbar_ax)
     cbar.ax.tick_params(labelsize = 20)
     cbar.set_label('% of possible days that could have been observed', size=20)
 
-    fig.suptitle('Average coverage of LST in warm window', size=28)
+    if REGION != 'EUROPE':
+        fig.suptitle('Average coverage of LST in warm window '+REGION, size=28)
+    else:
+        fig.suptitle('Average coverage of LST in warm window', size=28)
+
     plt.tight_layout()
     plt.savefig(OUTPATH+'coverage_LST_warm_'+REGION+'.png')
 
