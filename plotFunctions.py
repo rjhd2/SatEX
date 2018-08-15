@@ -95,6 +95,9 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     instrument = infos[5]
     time_factor = infos[6]
 
+    exclude_2006_constraint = iris.Constraint(time = lambda c: c.point.year != 2006)
+    cube = cube.extract(exclude_2006_constraint)
+
     time_constraint1 = iris.Constraint(time=lambda c: c.point.year < 2005)
     cube1 = cube.extract(time_constraint1)
 
@@ -228,4 +231,61 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
             return 10. * mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
         else:
             return  mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
+
+
+def open_file_with_cbar_extents(cbar_path):
+    ''' Opens a file which contains the extents (lowest and highest values) of Climpact or Python Indices and saves
+    values to a dictionary so that colors of GHCNDEX maps are adjusted to Climpact/Python. Better comparison possible.'''
+    cbar_dict = {}
+    with open(cbar_path) as f:
+        cbar_extents = f.read().splitlines()
+
+    for i in range(len(cbar_extents)):
+        val = cbar_extents[i].split(',')
+        cbar_dict[val[0]] = [val[1][2:], val[2][1:-1]]
+    return cbar_dict
+
+
+def plot_map_of_time_average(ann_data, infos):
+    '''' Plot a map of the average values over the whole time period'''
+    #CUBEINFO = [TITLE_TIME, INAME, REGION, TIMERANGE, OUTPATH, 'CM SAF', time_factor, UNITS_DICT[INAME]]
+    
+    title_time = infos[0]
+    iname = infos[1]
+    region = infos[2]
+    timerange = infos[3]
+    outpath = infos[4]
+    instrument = infos[5]
+    time_factor = infos[6]
+    unit = infos[7]
+ 
+    if ann_data.coord('time').has_bounds() == False:
+        ann_data.coord('time').guess_bounds()
+
+    ann_data_time_avg = ann_data.collapsed('time', iris.analysis.MEAN)
+    ann_data_lon = ann_data_time_avg.coord('longitude').bounds
+    ann_data_lat = ann_data_time_avg.coord('latitude').bounds
+
+
+    plt.close()
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+    ax.add_feature(cfeat.LAND)
+    ax.add_feature(cfeat.OCEAN)
+    gl = ax.gridlines(draw_labels=True)
+    ax.set_extent((np.amin(ann_data_lon)-0.5, np.amax(ann_data_lon)+0.5, np.amin(ann_data_lat)-0.5, np.amax(ann_data_lat)+0.5), crs = ccrs.PlateCarree())
+
+    political_bdrys = cfeat.NaturalEarthFeature(category='cultural',
+                                                name='admin_0_countries',
+                                                scale='50m')
+    ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
+
+    cont = iplt.pcolormesh(ann_data_time_avg, cmap = 'CMRmap')
+
+    cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
+    cb.set_label(unit, size=22)
+
+    plt.title('Map of averaged '+iname+' values '+'('+instrument+')', y=1.08, size=22)
+    plt.savefig(outpath+iname+'_'+instrument+'_map_averaged_'+region+'.png')
+    return
 

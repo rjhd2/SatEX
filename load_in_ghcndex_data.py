@@ -22,7 +22,7 @@ import copy
 import datetime
 import netCDF4
 import cf_units
-from plotFunctions import line, plot_figure, MedianPairwiseSlopes
+from plotFunctions import line, plot_figure, MedianPairwiseSlopes, open_file_with_cbar_extents, plot_map_of_time_average
 
 
 UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU': 'days', 'TN10p': '%', 'TN90p': '%', 'TNn': u'\u00B0C', 'TNx': u'\u00B0C', 
@@ -33,6 +33,8 @@ UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU
 #UNITS_DICT = {'CSDI': 'days'}
 
 python_indices = ['TXx', 'TNx', 'TXn', 'TNn', 'DTR', 'FD', 'TR']
+
+climpact_indices = ['CSDI', 'ID', 'SU', 'TN10p', 'TN90p', 'TX10p', 'TX90p', 'WSDI']
 
 
 REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
@@ -201,7 +203,7 @@ for INAME in UNITS_DICT.keys():
         ###################################################################
         #Plot map of averaged values over whole time period using ANN_data#
         ###################################################################
-
+        '''
         plt.close()
         fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
@@ -226,7 +228,7 @@ for INAME in UNITS_DICT.keys():
         cb.set_label(INAME+' Index Value')
         plt.title('Map of averaged '+INAME+' values (GHCNDEX)')
         plt.savefig(OUTPATH+INAME+'_GHCNDEX_map_averaged_'+REGION+'.png')
-
+        '''
         ########################################################
         #Plot time series of years 1991 - 2015 with trend line #
         ########################################################
@@ -247,7 +249,7 @@ for INAME in UNITS_DICT.keys():
 
             fig = plt.figure(figsize = (10, 8))
             plt.plot(times_datetime, YDATA)
-            plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*365*10.,2))+ ' ' + UNITS_DICT[INAME]+' per decade')
+            plt.plot(times_datetime, trendline, label='trend: '+str(round(slope*time_factor,2))+ ' ' + UNITS_DICT[INAME]+' per decade')
             plt.grid()
             plt.title('Time series of monthly GHCNDEX ' + INAME + ' in ' + REGION , size=22)
             plt.xlabel('years', size=20)
@@ -261,11 +263,11 @@ for INAME in UNITS_DICT.keys():
 
 
             if REGION == 'GERMANY':
-                slopes_MON_GERMANY[INAME] = str(round(slope*365*10.,2))
+                slopes_MON_GERMANY[INAME] = str(round(slope*time_factor,2))
             elif REGION == 'SPAIN':
-                slopes_MON_SPAIN[INAME] = str(round(slope*365*10.,2))
+                slopes_MON_SPAIN[INAME] = str(round(slope*time_factor,2))
             elif REGION == 'MOROCCO':
-                slopes_MON_MOROCCO[INAME] = str(round(slope*365*10.,2))
+                slopes_MON_MOROCCO[INAME] = str(round(slope*time_factor,2))
 
 
 
@@ -330,33 +332,33 @@ for INAME in UNITS_DICT.keys():
 
         for cold_win in min_or_max:
 
-            cbar_path = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'.txt'
-            cbar_dict = {}
-            with open(cbar_path) as f:
-                cbar_extents = f.read().splitlines()
+            cbar_path_python = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'.txt'
+            cbar_path_climpact = '/scratch/vportge/plots/Climpact/'+cold_win+'_LST_in_cold_window/_CMSAF_climpact_cbar_'+REGION+'.txt'
 
-            for i in range(len(cbar_extents)):
-                val = cbar_extents[i].split(',')
-                cbar_dict[val[0]] = [val[1][2:], val[2][1:-1]]
+            cbar_dict_python = open_file_with_cbar_extents(cbar_path_python)
+            cbar_dict_climpact = open_file_with_cbar_extents(cbar_path_climpact)
+
+            #GRIDLONS = ANN_data.coord('longitude').points
+            #GRIDLATS = ANN_data.coord('latitude').points
+
+            GRIDLONS = np.append(ANN_data.coord('longitude').bounds[:,0], ANN_data.coord('longitude').bounds[-1,1])
+            GRIDLATS = np.append(ANN_data.coord('latitude').bounds[:,0], ANN_data.coord('latitude').bounds[-1,1])
 
 
-
-            GRIDLONS = ANN_data.coord('longitude').points
-            GRIDLATS = ANN_data.coord('latitude').points
             TRENDS_ANN = np.ma.zeros(ANN_data.shape[1:3]) # lat, lon
             XDATA_ANN = ANN_data.coord('time').points
 
-            for lat in range(len(GRIDLATS)):
-                for lon in range(len(GRIDLONS)):
+            for lat in range(ANN_data.shape[1]):
+                for lon in range(ANN_data.shape[2]):
 
                     YDATA_GRIDPOINT = ANN_data[:, lat, lon]
                     if np.isnan(YDATA_GRIDPOINT.data).any() == False:
                         #no missing values
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*time_factor
 
                     else:
                         MDI = YDATA_GRIDPOINT.data.mask
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*365*10.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*time_factor
 
             TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
 
@@ -374,13 +376,27 @@ for INAME in UNITS_DICT.keys():
 
             if INAME in python_indices:
                 if REGION == 'GERMANY':
-                    cbar_extent_GERMANY[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict[INAME])
+                    cbar_extent_GERMANY[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_python[INAME])
 
                 elif REGION == 'SPAIN':
-                    cbar_extent_SPAIN[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict[INAME])
+                    cbar_extent_SPAIN[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_python[INAME])
 
                 elif REGION == 'MOROCCO':
-                    cbar_extent_MOROCCO[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict[INAME])
+                    cbar_extent_MOROCCO[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_python[INAME])
+
+            elif INAME in climpact_indices:
+                if REGION == 'GERMANY':
+                    cbar_extent_GERMANY[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_climpact[INAME.lower()])
+
+                elif REGION == 'SPAIN':
+                    cbar_extent_SPAIN[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_climpact[INAME.lower()])
+
+                elif REGION == 'MOROCCO':
+                    cbar_extent_MOROCCO[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_climpact[INAME.lower()])
+
+
+
+
 
             else:
                 plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME , UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
@@ -390,34 +406,33 @@ for INAME in UNITS_DICT.keys():
             ################################################################
             #begin Calculation for trends for first time period: 1991 -2004#
             ################################################################
-            cbar_path = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'_period1.txt'
-            cbar_dict = {}
-            with open(cbar_path) as f:
-                cbar_extents = f.read().splitlines()
+            cbar_path_python = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'_period1.txt'
+            cbar_path_climpact = '/scratch/vportge/plots/Climpact/'+cold_win+'_LST_in_cold_window/_CMSAF_climpact_cbar_'+REGION+'_period1.txt'
 
-            for i in range(len(cbar_extents)):
-                val = cbar_extents[i].split(',')
-                cbar_dict[val[0]] = [val[1][2:], val[2][1:-1]]
-
+            cbar_dict_python = open_file_with_cbar_extents(cbar_path_python)
+            cbar_dict_climpact = open_file_with_cbar_extents(cbar_path_climpact)
 
             TRENDS_ANN = np.ma.zeros(ANN_data.shape[1:3]) # lat, lon
             XDATA_ANN = ANN_data.coord('time').points[0:14]
-            for lat in range(len(GRIDLATS)):
-                for lon in range(len(GRIDLONS)):
+            for lat in range(ANN_data.shape[1]):
+                for lon in range(ANN_data.shape[2]):
                     YDATA_GRIDPOINT = ANN_data[0:14, lat, lon]
                     if np.isnan(YDATA_GRIDPOINT.data).any() == False:
                         #no missing values
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*time_factor
 
                     else:
                         MDI = YDATA_GRIDPOINT.data.mask
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*365*10.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*time_factor
 
             TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
             OUTNAME = OUTPATH+INAME+'_1991-2004_map_of_trend_'+REGION+'_'+cold_win+'.png'
 
             if INAME in python_indices:
-                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict[INAME])
+                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_python[INAME])
+           
+            elif INAME in climpact_indices:
+                    plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_climpact[INAME.lower()])
 
             else:
                 plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (1991-2004)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
@@ -425,38 +440,40 @@ for INAME in UNITS_DICT.keys():
             ################################################################
             #begin Calculation for trends for second time period: 2005-2015#
             ################################################################
-            cbar_path = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'_period2.txt'
-            cbar_dict = {}
-            with open(cbar_path) as f:
-                cbar_extents = f.read().splitlines()
+            cbar_path_python = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'_period2.txt'
+            cbar_path_climpact = '/scratch/vportge/plots/Climpact/'+cold_win+'_LST_in_cold_window/_CMSAF_climpact_cbar_'+REGION+'_period2.txt'
 
-            for i in range(len(cbar_extents)):
-                val = cbar_extents[i].split(',')
-                cbar_dict[val[0]] = [val[1][2:], val[2][1:-1]]
-
+            cbar_dict_python = open_file_with_cbar_extents(cbar_path_python)
+            cbar_dict_climpact = open_file_with_cbar_extents(cbar_path_climpact)
 
             TRENDS_ANN = np.ma.zeros(ANN_data.shape[1:3]) # lat, lon
             XDATA_ANN = ANN_data.coord('time').points[14:]
-            for lat in range(len(GRIDLATS)):
-                for lon in range(len(GRIDLONS)):
+            for lat in range(ANN_data.shape[1]):
+                for lon in range(ANN_data.shape[2]):
                     YDATA_GRIDPOINT = ANN_data[14:, lat, lon]
                     if np.isnan(YDATA_GRIDPOINT.data).any() == False:
                         #no missing values
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*time_factor
 
                     else:
                         MDI = YDATA_GRIDPOINT.data.mask
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*365*10.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT.data,MDI,mult10 = False, sort = False, calc_with_mdi = True)[0]*time_factor
 
             TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
             OUTNAME = OUTPATH+INAME+'_2005-2015_map_of_trend_'+REGION+'_'+cold_win+'.png'
 
             if INAME in python_indices:
-                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict[INAME])
+                plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_python[INAME])
+
+            elif INAME in climpact_indices:
+                    plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, cbar_dict_climpact[INAME.lower()])
+
             else:
                 plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually GHCNDEX ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
 
-
+            #Plot map of averaged values
+            CUBEINFO = ['annually', INAME, REGION, 'ANN', OUTPATH, 'GHCNDEX', time_factor, UNITS_DICT[INAME]]
+            plot_map_of_time_average(ANN_data, CUBEINFO)
 
 
 

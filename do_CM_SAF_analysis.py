@@ -60,6 +60,10 @@ OUTPATH_PLOTS = '/home/h01/vportge/CM_SAF/plots/CM_SAF/'
 #filepaths of all hourly files of one month to be analysed:
 FILES = glob.glob('/scratch/vportge/CM_SAF_data_metadata_changed/'+YEAR_N_MONTH+'*.nc')
 
+#OUTPATH = "/scratch/vportge/CM_SAF_LST_MIN_MAX/"
+OUTPATH = "/scratch/vportge/CM_SAF_LST_MIN_MAX_WINDOW_CHANGED/"
+
+
 #filepaths of all hourly files of all days to be analysed.
 #FILES=glob.glob('/scratch/vportge/CM_SAF_data_metadata_changed/*/*.nc')
 FILES.sort()
@@ -104,8 +108,11 @@ TIME_DATA_DATETIME = np.array([datetime.datetime.utcfromtimestamp(i) for i in TI
 LOCAL_TIMES_TO_FIND_INDICES = np.array([i+OFFSET for i in TIME_DATA_DATETIME])
 
 
+#TIME11 = TIME_DATA_DATETIME[11] #11 am
+TIME11 = TIME_DATA_DATETIME[10] #10 am
+
+
 TIME15 = TIME_DATA_DATETIME[15] #get the data and time of 3 pm, datetime object.
-TIME11 = TIME_DATA_DATETIME[11] #11 am
 TIME4 = TIME_DATA_DATETIME[4]   #4 am
 TIME9 = TIME_DATA_DATETIME[9]   #9 am
 
@@ -280,7 +287,7 @@ for d in range(0, number_of_days):
     timedim = hourly_data[0].coord('time')
     latdim = hourly_data[0].coord('latitude')
     londim = hourly_data[0].coord('longitude')
-    attri = {"creator_name": "Veronika Portge", "creator_email": "veronika.portge@metoffice.gov.uk", "summary": "This file contains time-space aggregated Thematic Climate Data Records (TCDR) produced by geosatclim within the Satellite Application Facility on Climate Monitoring (CM SAF). It was processed to determine the maximum land surface temperature in the warm window from 11 am - 3 pm local time and the maximum and minimum land surface temperature in the cold window from 4 am - 9 am local time."}
+    attri = {"creator_name": "Veronika Portge", "creator_email": "veronika.portge@metoffice.gov.uk", "summary": "This file contains time-space aggregated Thematic Climate Data Records (TCDR) produced by geosatclim within the Satellite Application Facility on Climate Monitoring (CM SAF). It was processed to determine the maximum land surface temperature in the warm window from 10 am - 3 pm local time and the maximum and minimum land surface temperature in the cold window from 4 am - 9 am local time."}
 
 
 
@@ -346,7 +353,7 @@ for d in range(0, number_of_days):
     cubelist = iris.cube.CubeList([LSTwarm_max_cube, LSTcold_min_cube, LSTcold_max_cube, uncrty_warm_max_cube, uncrty_cold_min_cube, uncrty_cold_max_cube, OBS_TIMES_WARM_MAX_CUBE, OBS_TIMES_COLD_MIN_CUBE, OBS_TIMES_COLD_MAX_CUBE, SATID_CUBE])
 
     #save cubes, zlib = True will compress the data
-    iris.save(cubelist, "/scratch/vportge/CM_SAF_LST_MIN_MAX/"+str(day_yyyymmdd[0:4])+"/"+str(day_yyyymmdd[4:6])+"/LST_max_and_min_"+day_yyyymmdd+".nc", zlib = True)
+    iris.save(cubelist, OUTPATH+str(day_yyyymmdd[0:4])+"/"+str(day_yyyymmdd[4:6])+"/LST_max_and_min_"+day_yyyymmdd+".nc", zlib = True)
 
     print('Finished day')
 

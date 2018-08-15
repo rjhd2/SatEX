@@ -103,7 +103,10 @@ def pcolormesh_map(data, lons, lats, cbar_label, titlestring, filename, outpath)
 
 DATADIR = '/scratch/vportge/CM_SAF_LST_MIN_MAX/COVERAGE/'
 OUTPATH = '/scratch/vportge/plots/CM_SAF/coverage/'
-REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+#REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+
+REGIONS = {'SPAIN': [-8.75, 36.25, 1.25, 43.75], 'GERMANY': [5.0-1.25, 45.0-1.25, 15.0+1.25, 50.0+1.25], 'MOROCCO': [-5.0-1.25, 30.0-1.25, 5.0+1.25, 35.0+1.25]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+
 
 #REGIONS = {'EUROPE'}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
@@ -183,7 +186,7 @@ for REGION in REGIONS:
 
 
     plt.close()
-    fig = plt.figure(figsize=(16,14))
+    fig = plt.figure(figsize=(16,15))
     ax1 = fig.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
     ax2 = fig.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
     ax3 = fig.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
@@ -231,15 +234,23 @@ for REGION in REGIONS:
         ax3.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
         ax4.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
 
+    ax1.add_feature(cfeat.LAND)
+    ax1.add_feature(cfeat.OCEAN)
+    ax2.add_feature(cfeat.LAND)
+    ax2.add_feature(cfeat.OCEAN)
+    ax3.add_feature(cfeat.LAND)
+    ax3.add_feature(cfeat.OCEAN)
+    ax4.add_feature(cfeat.LAND)
+    ax4.add_feature(cfeat.OCEAN)
 
-    cbar_ax = fig.add_axes([0.15, 0.07,  0.7, 0.04])
+    cbar_ax = fig.add_axes([0.15, 0.045,  0.7, 0.02])
     cbar = fig.colorbar(lst_map1, orientation='horizontal', extend='both', cax=cbar_ax)
     cbar.ax.tick_params(labelsize = 20)
     cbar.set_label('% of possible days that could have been observed', size=20)
     if REGION != 'EUROPE':
-        fig.suptitle('Average coverage of LST in cold window '+REGION, size=28)
+        fig.suptitle('Average coverage of LST in cold window '+REGION,  y=1.00, size=28)
     else:
-        fig.suptitle('Average coverage of LST in cold window', size=28)
+        fig.suptitle('Average coverage of LST in cold window', y=1.00, size=28)
 
     plt.tight_layout()
 
@@ -247,7 +258,7 @@ for REGION in REGIONS:
 
 
     plt.close()
-    fig = plt.figure(figsize=(16,14))
+    fig = plt.figure(figsize=(16,15))
     ax1 = fig.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
     ax2 = fig.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
     ax3 = fig.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
@@ -268,6 +279,14 @@ for REGION in REGIONS:
     ax3.set_title('JJA', size=26)
     ax4.set_title('SON', size=26)
 
+    ax1.add_feature(cfeat.LAND)
+    ax1.add_feature(cfeat.OCEAN)
+    ax2.add_feature(cfeat.LAND)
+    ax2.add_feature(cfeat.OCEAN)
+    ax3.add_feature(cfeat.LAND)
+    ax3.add_feature(cfeat.OCEAN)
+    ax4.add_feature(cfeat.LAND)
+    ax4.add_feature(cfeat.OCEAN)
 
     if REGION == 'EUROPE':
         ax1.coastlines()
@@ -297,18 +316,18 @@ for REGION in REGIONS:
         ax4.set_extent((np.amin(LONS)-0.5, np.amax(LONS)+0.5, np.amin(LATS)-0.5, np.amax(LATS)+0.5), crs = ccrs.PlateCarree())
 
 
-    cbar_ax = fig.add_axes([0.15, 0.07,  0.7, 0.04])
+    cbar_ax = fig.add_axes([0.15, 0.045,  0.7, 0.02])
     cbar = fig.colorbar(lst_map1, orientation='horizontal', extend='both', cax=cbar_ax)
     cbar.ax.tick_params(labelsize = 20)
     cbar.set_label('% of possible days that could have been observed', size=20)
 
     if REGION != 'EUROPE':
-        fig.suptitle('Average coverage of LST in warm window '+REGION, size=28)
+        fig.suptitle('Average coverage of LST in warm window '+REGION,  y=1.00, size=28)
     else:
-        fig.suptitle('Average coverage of LST in warm window', size=28)
+        fig.suptitle('Average coverage of LST in warm window', y=1.00, size=28)
 
     plt.tight_layout()
     plt.savefig(OUTPATH+'coverage_LST_warm_'+REGION+'.png')
 
-
+    
 #DJF: 90 / 91, MAM: 92, JJA: 92, SON: 91 

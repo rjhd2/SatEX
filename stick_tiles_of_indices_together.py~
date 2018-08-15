@@ -16,12 +16,12 @@ import netCDF4
 import iris.plot as iplt
 import copy
 import iris.coord_categorisation
-from plotFunctions import line, plot_figure, MedianPairwiseSlopes, plot_time_series_with_trend
+from plotFunctions import line, plot_figure, MedianPairwiseSlopes, plot_time_series_with_trend, plot_map_of_time_average
 
 MIN_OR_MAX = 'min'
 YEARS = np.arange(1991, 2016)
 MONTHS = ["%.2d" % i for i in range(1,13)]
-
+time_factor = 365*10.*24.
 '''
 UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU': 'days', 'TN10P': '%', 'tn90p': '%',
               'TNLT2': 'days', 'TNLTM2': 'days', 'TNLTM20': 'days', 'TNm': u'\u00B0C', 'TNn': u'\u00B0C', 'TNx': u'\u00B0C',
@@ -35,10 +35,14 @@ UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU
 
 
 python_indices = ['TXx', 'TNx', 'TXn', 'TNn', 'DTR', 'FD', 'TR']
+#python_indices = ['TR', 'FD' ]
 
 
 not_working = []
-REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+#REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+REGIONS = {'SPAIN': [-8.75, 36.25, 1.25, 43.75], 'GERMANY': [5.0-1.25, 45.0-1.25, 15.0+1.25, 50.0+1.25], 'MOROCCO': [-5.0-1.25, 30.0-1.25, 5.0+1.25, 35.0+1.25]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+#REGIONS = {'SPAIN': [-8.75, 36.25, 1.25, 43.75], }  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+
 
 
 slopes_ANN_GERMANY = {}
@@ -150,7 +154,7 @@ for INAME in python_indices:
             global_mean_areas = iris.analysis.cartography.area_weights(analyse_data)
             print('calculate spatial average')
             global_mean=analyse_data.collapsed(['latitude', 'longitude'], iris.analysis.MEAN, weights=global_mean_areas)
-            CUBEINFO = [TITLE_TIME, INAME, REGION, TIMERANGE, OUTPATH, 'CM SAF', 365*10.*24.] 
+            CUBEINFO = [TITLE_TIME, INAME, REGION, TIMERANGE, OUTPATH, 'CM SAF', time_factor] 
 
             slopes = plot_time_series_with_trend(global_mean, CUBEINFO, UNITS_DICT)
 
@@ -193,10 +197,19 @@ for INAME in python_indices:
                 for lat in range(TRENDS_ANN.shape[0]):
                     for lon in range(TRENDS_ANN.shape[1]):
                         YDATA_GRIDPOINT = index_values[:, lat, lon]
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*time_factor
 
-                GRIDLONS = ann_data.coord('longitude').points
-                GRIDLATS = ann_data.coord('latitude').points
+                #GRIDLONS = ann_data.coord('longitude').points
+                #GRIDLATS = ann_data.coord('latitude').points
+
+
+                if ann_data.coord('longitude').has_bounds() == False:
+                    ann_data.coord('latitude').guess_bounds()
+                    ann_data.coord('longitude').guess_bounds()
+
+                GRIDLONS = np.append(ann_data.coord('longitude').bounds[:,0], ann_data.coord('longitude').bounds[-1,1])
+                GRIDLATS = np.append(ann_data.coord('latitude').bounds[:,0], ann_data.coord('latitude').bounds[-1,1])
+
 
                 TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
 
@@ -224,7 +237,7 @@ for INAME in python_indices:
                 for lat in range(TRENDS_ANN.shape[0]):
                     for lon in range(TRENDS_ANN.shape[1]):
                         YDATA_GRIDPOINT = index_values[:, lat, lon]
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*time_factor
 
                 TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
                 OUTNAME = OUTPATH+INAME+'_1991-2004_map_of_trend_'+REGION+'.png'
@@ -252,7 +265,7 @@ for INAME in python_indices:
                 for lat in range(TRENDS_ANN.shape[0]):
                     for lon in range(TRENDS_ANN.shape[1]):
                         YDATA_GRIDPOINT = index_values[:, lat, lon]
-                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*365*10.*24.
+                        TRENDS_ANN[lat,lon] = MedianPairwiseSlopes(XDATA_ANN,YDATA_GRIDPOINT,10,mult10 = False, sort = False, calc_with_mdi = False)[0]*time_factor
 
                 TRENDS_ANN = np.ma.masked_where(np.isnan(TRENDS_ANN), TRENDS_ANN)
                 OUTNAME = OUTPATH+INAME+'_2005-2015_map_of_trend_'+REGION+'.png'
@@ -267,7 +280,9 @@ for INAME in python_indices:
                     cbar_extent_MOROCCO_period2[INAME] = plot_figure(TRENDS_ANN, GRIDLONS, GRIDLATS, 'Trend of annually CM SAF ' + INAME +' (2005-2015)', UNITS_DICT, INAME, OUTPATH, REGION, OUTNAME, False)
 
 
-
+                #Plot map of averaged values
+                CUBEINFO = [TITLE_TIME, INAME, REGION, TIMERANGE, OUTPATH, 'CM SAF', time_factor, UNITS_DICT[INAME]]
+                plot_map_of_time_average(ann_data, CUBEINFO)
 
                     #except:
                         #not_working.append(INAME)
