@@ -27,11 +27,11 @@ or spice_for_lst_min.bash
 both in scratch
 
 
-merge_files_from_different_years.py:
+split_yearly_files_to_tiles.py:
 This takes the yearly files and merges them all together to one big file for the whole 25 year period. Saves to compressed netCDF files. 
 Saves to different tiles to split up the whole region.
 SPICE:
-spice_for_different_years.bash
+spice_for_different_years.bash but that's not the one where the tiles where used. 
 
 
 median_pairwise_slopes.py:
@@ -48,5 +48,13 @@ For analysing HadEX files and plotting maps of their data or time series.
 load_in_ecad_data.py:
 For analysing ECA&D data and plotting maps or time series. 
 
-load_in_ghcndex.py:
+plot_ghcndex_indices.py:
 Loads GHCNDEX index values and plots time series with trend and maps of averaged values and maps of trends.
+
+compute_indices.py:
+Computes some monthly climate extreme indices (TXx, TNx, TXn, TNn, DTR, FD, TR) and saves them to netCDF files. Those monthly files can be used for calculating annual values. 
+
+
+plot_python_indices.py:
+Plots indices that were created using the python code 'compute_indices.py'
+

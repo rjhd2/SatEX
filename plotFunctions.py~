@@ -81,12 +81,19 @@ def plot_figure(data, gridlons, gridlats, title, units_dict, indexname, outpath,
     return [vmin, vmax]
 
 def plot_time_series_with_trend(cube, infos, units_dict):
+    ''' Plot a time series with trends for the whole time period, the first period
+        from 1991-2004 and the second period from 2005-2015 using the MedianPairwiseSlopes function
+        cube should be a cube of the annual values along the time axis
+        infos is a list of different infos which can be used for plotting the title or the filename
+        units_dict: the unit of the index.'''
+
     ###############################################################
     #Compute the Trend for the 1991/01/01 - 2004/12/31 time period#
     ###############################################################
 
     #infos = [TITLE_TIME, INAME, REGION, TIMERANGE, OUTPATH, instrument]
 
+    #extract some information for the title or the filename.
     title_time = infos[0]
     iname = infos[1]
     region = infos[2]
@@ -95,15 +102,20 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     instrument = infos[5]
     time_factor = infos[6]
 
+    #The 2006 value is biased due to Dec 14th 2006 where extremely high LST values
+    #were measured. This excludes the year 2006 from the plot. But actually it shouldn't be extracted. 
     exclude_2006_constraint = iris.Constraint(time = lambda c: c.point.year != 2006)
     cube = cube.extract(exclude_2006_constraint)
 
+    #First period where MVIRI was measuring was until end of 2004
     time_constraint1 = iris.Constraint(time=lambda c: c.point.year < 2005)
     cube1 = cube.extract(time_constraint1)
 
+    #Second period where SEVIRI measured began in 2005
     time_constraint2 = iris.Constraint(time=lambda c: c.point.year > 2004)
     cube2 = cube.extract(time_constraint2)
 
+    #compute the trend for the whole time period
     ydata = cube.data
     xdata = cube.coord('time').points
     mdi  = ydata.mask
@@ -114,7 +126,7 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     trendcube.rename('Trend')
     trendcube.data=line(xdata, y_interception, slope)
 
-
+    #compute the trend for the first time period
     ydata1 = cube1.data
     xdata1 = cube1.coord('time').points
     mdi1  = ydata1.mask
@@ -125,7 +137,7 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     trendcube1.rename('Trend')
     trendcube1.data=line(xdata1, y_interception1, slope1)
 
-
+    #compute the trend for the second time period
     ydata2 = cube2.data
     xdata2 = cube2.coord('time').points
     mdi2  = ydata2.mask
@@ -154,9 +166,6 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     plt.tight_layout()
     plt.tick_params(axis='both', which='major', labelsize=16)
     plt.savefig(outpath+iname+'_with_trend_'+timerange+'_'+region+'.png')
-
-
-
 
     return [str(round(slope*time_factor,2)), str(round(slope1*time_factor,2)), str(round(slope2*time_factor,2))]
 
@@ -284,7 +293,6 @@ def plot_map_of_time_average(ann_data, infos):
 
     cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
     cb.set_label(unit, size=22)
-    cbar.set_label(units_dict[indexname]+' per decade', size=20)
 
     plt.title('Map of averaged '+iname+' values '+'('+instrument+')', y=1.08, size=22)
     plt.savefig(outpath+iname+'_'+instrument+'_map_averaged_'+region+'.png')
