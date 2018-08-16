@@ -106,6 +106,7 @@ OUTPATH = '/scratch/vportge/plots/CM_SAF/coverage/'
 #REGIONS = {'SPAIN': [-7.5, 37.5, 0.0, 42.5], 'GERMANY': [5.0, 45.0, 15.0, 50.0], 'MOROCCO': [-5.0, 30.0, 5.0, 35.0]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
 REGIONS = {'SPAIN': [-8.75, 36.25, 1.25, 43.75], 'GERMANY': [5.0-1.25, 45.0-1.25, 15.0+1.25, 50.0+1.25], 'MOROCCO': [-5.0-1.25, 30.0-1.25, 5.0+1.25, 35.0+1.25]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
+REGIONS = {'CENTER': [-10, 25, 22, 48]}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude
 
 
 #REGIONS = {'EUROPE'}  #westerly longitude, southerly latitude, easterly longitude, northerly latitude

@@ -287,7 +287,7 @@ for d in range(0, number_of_days):
     timedim = hourly_data[0].coord('time')
     latdim = hourly_data[0].coord('latitude')
     londim = hourly_data[0].coord('longitude')
-    attri = {"creator_name": "Veronika Portge", "creator_email": "veronika.portge@metoffice.gov.uk", "summary": "This file contains time-space aggregated Thematic Climate Data Records (TCDR) produced by geosatclim within the Satellite Application Facility on Climate Monitoring (CM SAF). It was processed to determine the maximum land surface temperature in the warm window from 11 am - 3 pm local time and the maximum and minimum land surface temperature in the cold window from 4 am - 9 am local time."}
+    attri = {"creator_name": "Veronika Portge", "creator_email": "veronika.portge@metoffice.gov.uk", "summary": "This file contains time-space aggregated Thematic Climate Data Records (TCDR) produced by geosatclim within the Satellite Application Facility on Climate Monitoring (CM SAF). It was processed to determine the maximum land surface temperature in the warm window from 10 am - 3 pm local time and the maximum and minimum land surface temperature in the cold window from 4 am - 9 am local time."}
 
 
 

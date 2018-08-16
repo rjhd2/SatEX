@@ -8,13 +8,13 @@ import cf_units
 import sys
 
 # data location
-DATALOC = "/scratch/vportge/CM_SAF_LST_MIN_MAX/"
-#DATALOC = "/scratch/vportge/CM_SAF_LST_MIN_MAX_COLD_WINDOW_10_3/"
+#DATALOC = "/scratch/vportge/CM_SAF_LST_MIN_MAX/"
+DATALOC = "/scratch/vportge/CM_SAF_LST_MIN_MAX_COLD_WINDOW_10_3/"
 
 MIN_OR_MAX = 'max'
 
-OUTDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/'
-#OUTDIR = '/scratch/vportge/concatenated_yearly_files/cold_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/'
+#OUTDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/'
+OUTDIR = '/scratch/vportge/concatenated_yearly_files/cold_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/'
 
 # conversion between Climpact and SEVERI names
 IN_VARIABLE_NAMES = {"tmax" : "Maximum Land Surface Temperature in Warm Window (PMW)", "tmin" : "Minimum Land Surface Temperature in Cold Window (PMW)", "precip" : ""}

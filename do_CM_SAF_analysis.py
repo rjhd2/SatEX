@@ -61,7 +61,7 @@ OUTPATH_PLOTS = '/home/h01/vportge/CM_SAF/plots/CM_SAF/'
 FILES = glob.glob('/scratch/vportge/CM_SAF_data_metadata_changed/'+YEAR_N_MONTH+'*.nc')
 
 #OUTPATH = "/scratch/vportge/CM_SAF_LST_MIN_MAX/"
-OUTPATH = "/scratch/vportge/CM_SAF_LST_MIN_MAX_WINDOW_CHANGED/"
+OUTPATH = "/scratch/vportge/CM_SAF_LST_MIN_MAX_COLD_WINDOW_10_3/"
 
 
 #filepaths of all hourly files of all days to be analysed.
