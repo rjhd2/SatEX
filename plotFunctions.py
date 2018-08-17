@@ -18,8 +18,17 @@ def line(x,t,m):
     return m*x+t
 
 
-def plot_figure(data, gridlons, gridlats, title, units_dict, indexname, outpath, region, outname, cbar_dict):
-    """Plot map of index for some day."""
+def plot_figure(data, gridlons, gridlats, figure_info):
+    """Plot map of index for some day.
+    figure_info = [title, unit, outpath, region, outname, cbar_dict]
+    """
+    title = figure_info[0]
+    unit = figure_info[1]
+    outpath = figure_info[2]
+    region = figure_info[3]
+    outname = figure_info[4]
+    cbar_dict = figure_info[5]
+
     plt.close()
     fig = plt.figure(figsize = (10, 8))
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
@@ -75,7 +84,7 @@ def plot_figure(data, gridlons, gridlats, title, units_dict, indexname, outpath,
     ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
     gl = ax.gridlines(draw_labels=True)
     plt.title(title, y=1.08, size=22)
-    cbar.set_label(units_dict[indexname]+' per decade', size=20)
+    cbar.set_label(unit+' per decade', size=20)
     #plt.show()
     plt.savefig(outname)
     return [vmin, vmax]
@@ -115,7 +124,7 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     ydata = cube.data
     xdata = cube.coord('time').points
     mdi  = ydata.mask
-    trendanalysis = MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with_mdi=True)
+    trendanalysis = MedianPairwiseSlopes(xdata,ydata)
     slope = trendanalysis[0]
     y_interception = trendanalysis[3]
     trendcube = copy.deepcopy(cube)
@@ -126,7 +135,7 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     ydata1 = cube1.data
     xdata1 = cube1.coord('time').points
     mdi1  = ydata1.mask
-    trendanalysis1 = MedianPairwiseSlopes(xdata1,ydata1,mdi1,mult10 = False, sort = False, calc_with_mdi=True)
+    trendanalysis1 = MedianPairwiseSlopes(xdata1,ydata1)
     slope1 = trendanalysis1[0]
     y_interception1 = trendanalysis1[3]
     trendcube1 = copy.deepcopy(cube1)
@@ -137,7 +146,7 @@ def plot_time_series_with_trend(cube, infos, units_dict):
     ydata2 = cube2.data
     xdata2 = cube2.coord('time').points
     mdi2  = ydata2.mask
-    trendanalysis2 = MedianPairwiseSlopes(xdata2,ydata2,mdi2,mult10 = False, sort = False, calc_with_mdi=True)
+    trendanalysis2 = MedianPairwiseSlopes(xdata2,ydata2)
     slope2 = trendanalysis2[0]
     y_interception2 = trendanalysis2[3]
     trendcube2 = copy.deepcopy(cube2)
@@ -168,7 +177,7 @@ def plot_time_series_with_trend(cube, infos, units_dict):
 
 
 #***************************************
-def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with_mdi = False):
+def MedianPairwiseSlopes(xdata,ydata):
     '''
     Calculate the median of the pairwise slopes
 
@@ -176,40 +185,20 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
     :param array ydata: y array
     :param float mdi: missing data indicator
     :param bool mult10: multiply output trends by 10 (to get per decade)
-    :param bool sort: sort the Xdata first
     :returns: float of slope
     '''
     # sort xdata
-    if sort:
-        sort_order = np.argsort(xdata)
-
-        xdata = xdata[sort_order]
-        ydata = ydata[sort_order]
 
     slopes=[]
-    #y_intercepts = []
     for i in range(len(xdata)):
         for j in range(i+1,len(xdata)):
-            if calc_with_mdi == True:
-                if mdi[j] == False and mdi[i] == False: #changed from: if ydata[j]!=mdi and ydata[i]!=mdi:
-                    slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
-                    #y_intercepts += [(xdata[j]*ydata[i]-xdata[i]*ydata[j])/(xdata[j]-xdata[i])]
-            elif calc_with_mdi == False:
-                slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
-                #y_intercepts += [(xdata[j]*ydata[i]-xdata[i]*ydata[j])/(xdata[j]-xdata[i])]
+            slopes += [(ydata[j]-ydata[i])/(xdata[j]-xdata[i])]
 
     mpw=np.ma.median(np.ma.array(slopes))
-    #y_intercept_point = np.ma.median(np.array(y_intercepts))
     y_intercept_point = np.median(ydata)-mpw*np.median(xdata)
     # copied from median_pairwise.pro methodology (Mark McCarthy)
     slopes.sort()
-
-    if calc_with_mdi == True:
-        good_data = np.where(mdi == False)#good_data=np.where(ydata == False)[0]
-        n=len(ydata[good_data])
-
-    elif calc_with_mdi == False:
-        n=len(ydata)
+    n=len(ydata)
 
     try:
 
@@ -225,17 +214,10 @@ def MedianPairwiseSlopes(xdata,ydata,mdi,mult10 = False, sort = False, calc_with
 
         upper=slopes[int(rank_upper)]
         lower=slopes[int(rank_lower)]
-
-        if mult10:
-            return 10. * mpw, 10. * lower, 10. * upper, y_intercept_point      # MedianPairwiseSlopes
-        else:
-            return  mpw, lower, upper, y_intercept_point      # MedianPairwiseSlopes
+        return  mpw, lower, upper, y_intercept_point      # MedianPairwiseSlopes
 
     except:
-        if mult10:
-            return 10. * mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
-        else:
-            return  mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
+        return  mpw, 'test', 'test', y_intercept_point      # MedianPairwiseSlopes
 
 
 def open_file_with_cbar_extents(cbar_path):
