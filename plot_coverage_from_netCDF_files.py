@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
-#import matplotlib.cm as mpl_cm
+import matplotlib.cm as mpl_cm
 #import iris.plot as iplt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeat

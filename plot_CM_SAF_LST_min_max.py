@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import iris.quickplot as qplt
-#import matplotlib.cm as mpl_cm
+import matplotlib.cm as mpl_cm
 #import iris.plot as iplt
 import cartopy.crs as ccrs
 #import cartopy.feature as cfeature
@@ -31,7 +31,7 @@ def pcolormesh_map(data, lons, lats, cbar_label, titlestring, filename, outpath)
     ax1 = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     #This takes some time, I think the average gets calculated now
     #lst_map = plt.pcolormesh(lons, lats, data, transform=ccrs.PlateCarree())
-    lst_map = plt.pcolormesh(lons, lats, data, transform=ccrs.PlateCarree(), vmin = 0.0001, vmax = 100)
+    lst_map = plt.pcolormesh(lons, lats, data, transform=ccrs.PlateCarree(), cmap = mpl_cm.get_cmap('brewer_RdBu_11'), vmin = 0.0001, vmax = 100)
     lst_map.cmap.set_under('white') #set 0 percent values to white. 
 
     cbar = plt.colorbar(lst_map, orientation='horizontal', extend='both')
@@ -179,15 +179,15 @@ for i in range(4):
 
     #Plot averaged data:
 
-    '''
+    
     pcolormesh_map(AVERAGE_LST_WARM_MAX.data, LONS, LATS, 'LST in K',
                 SEASON+' average of max LST in warm window ', SEASON+'_average_LST_max_warm_', OUTPATH+'seasons/')
     pcolormesh_map(AVERAGE_LST_COLD_MAX.data, LONS, LATS, 'LST in K',
                 SEASON+' average of max LST in cold window ', SEASON+'_average_LST_max_cold_', OUTPATH+'seasons/')
     pcolormesh_map(AVERAGE_LST_COLD_MIN.data, LONS, LATS, 'LST in K',
                 SEASON+' average of min LST in cold window ', SEASON+'_average_LST_min_cold_', OUTPATH+'seasons/')
-    '''
-    analyse_coverage(LST_WARM_MAX, LST_COLD_MAX, LST_COLD_MIN, LONS, LATS, SEASON, OUTPATH+'seasons/')
+    
+    #analyse_coverage(LST_WARM_MAX, LST_COLD_MAX, LST_COLD_MIN, LONS, LATS, SEASON, OUTPATH+'seasons/')
 
 
 
