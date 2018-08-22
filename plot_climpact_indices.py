@@ -213,43 +213,43 @@ for INAME in UNITS_DICT:
 
 
 
-OUTPATH_trends = '/scratch/vportge/plots/Climpact/'+MIN_OR_MAX+'_LST_in_cold_window/'
+OUTPATH_trends = '/scratch/vportge/plots/textfiles_with_cbar_extent/'
 
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_GERMANY.txt', 'w') as f:
     for key, value in cbar_extent_GERMANY.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_SPAIN.txt', 'w') as f:
     for key, value in cbar_extent_SPAIN.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_MOROCCO.txt', 'w') as f:
     for key, value in cbar_extent_MOROCCO.items():
         f.write('%s, %s\n' % (key, value))
 
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY_period1.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_GERMANY_period1.txt', 'w') as f:
     for key, value in cbar_extent_GERMANY_period1.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN_period1.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_SPAIN_period1.txt', 'w') as f:
     for key, value in cbar_extent_SPAIN_period1.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO_period1.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_MOROCCO_period1.txt', 'w') as f:
     for key, value in cbar_extent_MOROCCO_period1.items():
         f.write('%s, %s\n' % (key, value))
 
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY_period2.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_GERMANY_period2.txt', 'w') as f:
     for key, value in cbar_extent_GERMANY_period2.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN_period2.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_SPAIN_period2.txt', 'w') as f:
     for key, value in cbar_extent_SPAIN_period2.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO_period2.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_MOROCCO_period2.txt', 'w') as f:
     for key, value in cbar_extent_MOROCCO_period2.items():
         f.write('%s, %s\n' % (key, value))

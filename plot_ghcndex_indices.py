@@ -313,9 +313,8 @@ for INAME in UNITS_DICT.keys():
 
             '''Read in the files which contain the lowest and highest values of CLIMPACT/PYTHON created indices.
                Those values can be used to set the extent of the GHCNDEX plots so that the colorbars show the same range.'''
-
-            cbar_path_python = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'.txt'
-            cbar_path_climpact = '/scratch/vportge/plots/Climpact/'+cold_win+'_LST_in_cold_window/_CMSAF_climpact_cbar_'+REGION+'.txt'
+            cbar_path_python = '/scratch/vportge/plots/textfiles_with_cbar_extent/'+cold_win+'_LST_in_cold_window_CMSAF_python_cbar_'+REGION+'.txt'
+            cbar_path_climpact = '/scratch/vportge/plots/textfiles_with_cbar_extent/'+cold_win+'_LST_in_cold_window_CMSAF_climpact_cbar_'+REGION+'.txt'
 
             cbar_dict_python = open_file_with_cbar_extents(cbar_path_python)
             cbar_dict_climpact = open_file_with_cbar_extents(cbar_path_climpact)
@@ -367,8 +366,8 @@ for INAME in UNITS_DICT.keys():
             ################################################################
             #begin Calculation for trends for first time period: 1991 -2004#
             ################################################################
-            cbar_path_python = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'_period1.txt'
-            cbar_path_climpact = '/scratch/vportge/plots/Climpact/'+cold_win+'_LST_in_cold_window/_CMSAF_climpact_cbar_'+REGION+'_period1.txt'
+            cbar_path_python = '/scratch/vportge/plots/textfiles_with_cbar_extent/'+cold_win+'_LST_in_cold_window_CMSAF_python_cbar_'+REGION+'_period1.txt'
+            cbar_path_climpact = '/scratch/vportge/plots/textfiles_with_cbar_extent/'+cold_win+'_LST_in_cold_window_CMSAF_climpact_cbar_'+REGION+'_period1.txt'
 
             cbar_dict_python = open_file_with_cbar_extents(cbar_path_python)
             cbar_dict_climpact = open_file_with_cbar_extents(cbar_path_climpact)
@@ -398,8 +397,8 @@ for INAME in UNITS_DICT.keys():
             ################################################################
             #begin Calculation for trends for second time period: 2005-2015#
             ################################################################
-            cbar_path_python = '/scratch/vportge/plots/Python_Indices/'+cold_win+'_LST_in_cold_window/_CMSAF_python_cbar_'+REGION+'_period2.txt'
-            cbar_path_climpact = '/scratch/vportge/plots/Climpact/'+cold_win+'_LST_in_cold_window/_CMSAF_climpact_cbar_'+REGION+'_period2.txt'
+            cbar_path_python = '/scratch/vportge/plots/textfiles_with_cbar_extent/'+cold_win+'_LST_in_cold_window_CMSAF_python_cbar_'+REGION+'_period2.txt'
+            cbar_path_climpact = '/scratch/vportge/plots/textfiles_with_cbar_extent/'+cold_win+'_LST_in_cold_window_CMSAF_climpact_cbar_'+REGION+'_period2.txt'
 
             cbar_dict_python = open_file_with_cbar_extents(cbar_path_python)
             cbar_dict_climpact = open_file_with_cbar_extents(cbar_path_climpact)

@@ -32,6 +32,8 @@ UNITS_DICT = {'CSDI': 'days', 'DTR': u'\u00B0C', 'FD': 'days', 'ID': 'days', 'SU
 
 #The indices that were calculated using the python code
 python_indices = ['TXx', 'TNx', 'TXn', 'TNn', 'DTR', 'FD', 'TR']
+#python_indices = ['TR']
+
 #python_indices = ['TR', 'FD' ]
 
 #This are the extents of the regions which are used for GHCNDEX data:
@@ -258,45 +260,44 @@ for INAME in python_indices:
 
 
 
-OUTPATH_trends = '/scratch/vportge/plots/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'
+OUTPATH_trends = '/scratch/vportge/plots/textfiles_with_cbar_extent/'
 
 
 
-
-with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_GERMANY.txt', 'w') as f:
     for key, value in cbar_extent_GERMANY.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_SPAIN.txt', 'w') as f:
     for key, value in cbar_extent_SPAIN.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_MOROCCO.txt', 'w') as f:
     for key, value in cbar_extent_MOROCCO.items():
         f.write('%s, %s\n' % (key, value))
 
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY_period1.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_GERMANY_period1.txt', 'w') as f:
     for key, value in cbar_extent_GERMANY_period1.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN_period1.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_SPAIN_period1.txt', 'w') as f:
     for key, value in cbar_extent_SPAIN_period1.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO_period1.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_MOROCCO_period1.txt', 'w') as f:
     for key, value in cbar_extent_MOROCCO_period1.items():
         f.write('%s, %s\n' % (key, value))
 
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_GERMANY_period2.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_GERMANY_period2.txt', 'w') as f:
     for key, value in cbar_extent_GERMANY_period2.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_SPAIN_period2.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_SPAIN_period2.txt', 'w') as f:
     for key, value in cbar_extent_SPAIN_period2.items():
         f.write('%s, %s\n' % (key, value))
 
-with open(OUTPATH_trends+'_CMSAF_python_cbar_MOROCCO_period2.txt', 'w') as f:
+with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_python_cbar_MOROCCO_period2.txt', 'w') as f:
     for key, value in cbar_extent_MOROCCO_period2.items():
         f.write('%s, %s\n' % (key, value))

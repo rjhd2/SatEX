@@ -3,6 +3,7 @@ import numpy as np
 import iris
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.cm as mpl_cm
 import iris.quickplot as qplt
 import iris.plot as iplt
 import cartopy.crs as ccrs
@@ -267,7 +268,12 @@ def plot_map_of_time_average(ann_data, infos):
                                                 scale='50m')
     ax.add_feature(political_bdrys, edgecolor='b', facecolor='none', zorder=2)
 
-    cont = iplt.pcolormesh(ann_data_time_avg, cmap = 'CMRmap')
+    if iname == 'TR':
+        vmax = 170
+    else:
+        vmax = np.amax(ann_data_time_avg.data)
+
+    cont = iplt.pcolormesh(ann_data_time_avg, cmap = mpl_cm.get_cmap('YlOrRd'), vmax = vmax)
 
     cb=fig.colorbar(cont, ax=ax, orientation='horizontal')
     cb.set_label(unit, size=22)
