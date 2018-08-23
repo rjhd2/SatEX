@@ -10,8 +10,10 @@ import sys
 
 # data location
 
-MIN_OR_MAX = 'min'
-OUTDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/CORRECT_TILES/'
+MIN_OR_MAX = 'max'
+#OUTDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/CORRECT_TILES/'
+OUTDIR = '/scratch/vportge/concatenated_yearly_files/warm_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/TILES/'
+
 YEARS = np.arange(1991,2016)
 
 try:
@@ -21,6 +23,8 @@ except:
 
 
 FILEPATHS = glob.glob('/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/*.nc')
+FILEPATHS = glob.glob('/scratch/vportge/concatenated_yearly_files/warm_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/*.nc')
+
 #FILEPATHS = ['/scratch/vportge/concatenated_yearly_files/max_LST_in_cold_window/north_africa/1991_2015_north_africa_missing_value_1e20_hours_as_time_coord.nc']
 FILEPATHS.sort()
 

@@ -31,7 +31,7 @@ split_yearly_files_to_tiles.py:
 This takes the yearly files and merges them all together to one big file for the whole 25 year period. Saves to compressed netCDF files. 
 Saves to different tiles to split up the whole region.
 SPICE:
-spice_for_different_years.bash but that's not the one where the tiles where used. 
+spice_split_yearly_files_to_tiles.bash
 
 
 median_pairwise_slopes.py:
