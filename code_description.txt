@@ -19,11 +19,11 @@ plot_coverage_from_netCDF_files.py:
 Produces plots of the coverage using the saved netCDF files (produced by plot_CM_SAF_LST_min_max.py).
 
 
-merge_files.py:
+merge_daily_files_to_yearly_files.py:
 Takes daily files and makes yearly files out of it with a precipitation variable which contains no data. But just that Climpact has everything it needs. Saved to compressed netCDF.
 SPICE:
 spice.bash
-or spice_for_lst_min.bash
+or spice_for_merging_daily_files_to_yearly_files.bash
 both in scratch
 
 
