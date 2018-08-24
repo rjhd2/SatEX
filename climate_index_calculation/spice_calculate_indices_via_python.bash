@@ -2,7 +2,7 @@
 
 for TILENUM in $(seq 0 95); do
         echo ${TILENUM}
-        spice_script=generate_tiles_${TILENUM}.bash
+        spice_script=calculate_indices_${TILENUM}.bash
         echo "#!/bin/bash -l" > ${spice_script}
         echo "#SBATCH --mem=10G" >> ${spice_script} # memory in MB
         echo "#SBATCH --ntasks=6" >> ${spice_script}

@@ -8,4 +8,4 @@
 #SBATCH --qos=normal
 
 module load scitools/experimental-current
-python /home/h01/vportge/CM_SAF/python_analysis/climate_index_calculation/plot_python_indices.py
+python /home/h01/vportge/CM_SAF/python_analysis/climate_index_calculation/plot_indices/plot_python_indices.py

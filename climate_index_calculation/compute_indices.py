@@ -6,9 +6,7 @@ import numpy.ma as ma
 import sys
 
 
-
-
-MIN_OR_MAX = 'min'
+MIN_OR_MAX = 'max'
 YEARS = np.arange(1991, 2016)
 MONTHS = ["%.2d" % i for i in range(1,13)]
 try:
@@ -16,10 +14,14 @@ try:
 except:
     TILENUM = 7
 
-INDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/'
+#INDIR = '/scratch/vportge/concatenated_yearly_files/'+MIN_OR_MAX+'_LST_in_cold_window/'
+INDIR = '/scratch/vportge/concatenated_yearly_files/warm_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/'
+
 tmax = glob.glob(INDIR+'TILES/'+str(TILENUM)+'/*_tmax*.nc')
 tmin = glob.glob(INDIR+'TILES/'+str(TILENUM)+'/*_tmin*.nc')
-OUTDIR = '/scratch/vportge/indices/python_created_indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+str(TILENUM)+'/'
+
+#OUTDIR = '/scratch/vportge/indices/python_created_indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+str(TILENUM)+'/'
+OUTDIR = '/scratch/vportge/indices/python_created_indices/warm_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/'+str(TILENUM)+'/'
 
 #load in TX (maximum LST) and TN (minimum LST) and concatenate 
 TX = iris.load(tmax)

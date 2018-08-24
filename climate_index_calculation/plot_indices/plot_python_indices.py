@@ -86,8 +86,12 @@ for INAME in python_indices:
         lon_constraint = iris.Constraint(longitude=lambda c: left_lon <= c.point <= right_lon)
 
 
-        FPATH = glob.glob('/scratch/vportge/indices/python_created_indices/'+MIN_OR_MAX+'_LST_in_cold_window/*/'+INAME+'*.nc')
-        OUTPATH = '/scratch/vportge/plots/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'
+        #FPATH = glob.glob('/scratch/vportge/indices/python_created_indices/'+MIN_OR_MAX+'_LST_in_cold_window/*/'+INAME+'*.nc')
+        #OUTPATH = '/scratch/vportge/plots/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'
+
+        FPATH = glob.glob('/scratch/vportge/indices/python_created_indices/warm_window_10_3/'+MIN_OR_MAX+'_LST_in_cold_window/*/'+INAME+'*.nc')
+        OUTPATH = '/scratch/vportge/plots/warm_window_10_3/Python_Indices/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'
+
 
         #Load in the data for the index.
         data = iris.load(FPATH)
@@ -260,7 +264,8 @@ for INAME in python_indices:
 
 
 
-OUTPATH_trends = '/scratch/vportge/plots/textfiles_with_cbar_extent/'
+#OUTPATH_trends = '/scratch/vportge/plots/textfiles_with_cbar_extent/'
+OUTPATH_trends = '/scratch/vportge/plots/warm_window_10_3/textfiles_with_cbar_extent/'
 
 
 

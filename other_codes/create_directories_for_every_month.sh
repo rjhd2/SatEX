@@ -4,8 +4,11 @@
 for i in $(seq 0 95); do
     echo $i
     #mkdir /scratch/vportge/concatenated_yearly_files/cold_window_10_3/$i/
-    mkdir /scratch/vportge/concatenated_yearly_files/warm_window_10_3/max_LST_in_cold_window/TILES/$i/
-    mkdir /scratch/vportge/concatenated_yearly_files/warm_window_10_3/min_LST_in_cold_window/TILES/$i/
+    #mkdir /scratch/vportge/concatenated_yearly_files/warm_window_10_3/max_LST_in_cold_window/TILES/$i/
+    #mkdir /scratch/vportge/concatenated_yearly_files/warm_window_10_3/min_LST_in_cold_window/TILES/$i/
+	mkdir /scratch/vportge/indices/python_created_indices/warm_window_10_3/min_LST_in_cold_window/$i/
+	mkdir /scratch/vportge/indices/python_created_indices/warm_window_10_3/max_LST_in_cold_window/$i/
+
     #for month in $(seq -w 1 12); do
 
         #mkdir /scratch/vportge/CM_SAF_LST_MIN_MAX_WINDOW_CHANGED/$i/${month}/

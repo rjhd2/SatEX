@@ -15,8 +15,9 @@ import iris.plot as iplt
 import copy
 from plotFunctions import line, plot_figure, MedianPairwiseSlopes, plot_time_series_with_trend, plot_map_of_time_average
 
-INDIR = '/scratch/rdunn/satex/tiles/*/'
-MIN_OR_MAX = 'max'
+#INDIR = '/scratch/rdunn/satex/tiles/*/'
+INDIR = '/scratch/rdunn/satex/tiles_longer_max_window/*/'
+MIN_OR_MAX = 'min'
 #Multiply trends by this factor to get trend per decade
 TIME_FACTOR = 365*10.
 
@@ -74,7 +75,8 @@ for INAME in UNITS_DICT:
 
         lat_constraint = iris.Constraint(latitude=lambda c: lower_lat <= c.point <= upper_lat)
         lon_constraint = iris.Constraint(longitude=lambda c: left_lon <= c.point <= right_lon)
-        OUTPATH = '/scratch/vportge/plots/Climpact/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'
+        #OUTPATH = '/scratch/vportge/plots/Climpact/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'
+        OUTPATH = '/scratch/vportge/plots/warm_window_10_3/Climpact/'+MIN_OR_MAX+'_LST_in_cold_window/'+REGION+'/'
 
         for TIMERANGE in possible_times:
             if TIMERANGE == 'ANN':
@@ -213,7 +215,8 @@ for INAME in UNITS_DICT:
 
 
 
-OUTPATH_trends = '/scratch/vportge/plots/textfiles_with_cbar_extent/'
+#OUTPATH_trends = '/scratch/vportge/plots/textfiles_with_cbar_extent/'
+OUTPATH_trends = '/scratch/vportge/plots/warm_window_10_3/textfiles_with_cbar_extent/'
 
 
 with open(OUTPATH_trends+MIN_OR_MAX+'_LST_in_cold_window_CMSAF_climpact_cbar_GERMANY.txt', 'w') as f:
